@@ -55,5 +55,5 @@ Plataforma web para monitoreo y visualización de inundaciones urbanas mediante:
 
 ## Integrantes
 
-- Evelyn Paredes
-- Venus Ayala 
+- Evelyn Pilar Paredes Medina
+- Venus Ayala
