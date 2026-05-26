@@ -1,10 +1,43 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Severity, Report } from '../types/report';
 import { MapPin, Camera, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
+const defaultIcon = L.divIcon({
+  className: 'custom-leaflet-icon bg-transparent border-0',
+  html: `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6" width="32" height="32" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+      <circle cx="12" cy="10" r="3" fill="white"></circle>
+    </svg>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
+
+function LocationSelector({ setLocation }: { setLocation: (lat: string, lng: string) => void }) {
+  useMapEvents({
+    click(e) {
+      setLocation(e.latlng.lat.toString(), e.latlng.lng.toString());
+    },
+  });
+  return null;
+}
+
+function MapUpdater({ lat, lng }: { lat: string; lng: string }) {
+  const map = useMap();
+  useEffect(() => {
+    if (lat && lng) {
+      map.flyTo([parseFloat(lat), parseFloat(lng)], map.getZoom() < 15 ? 15 : map.getZoom(), { animate: true });
+    }
+  }, [lat, lng, map]);
+  return null;
+}
 
 interface ReportFormProps {
   onClose: () => void;
@@ -44,8 +77,12 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!lat || !lng || !description) {
-      alert("Por favor complete los campos obligatorios.");
+    if (!lat || !lng) {
+      alert("Seleccioná una ubicación en el mapa antes de enviar el reporte.");
+      return;
+    }
+    if (!description) {
+      alert("Por favor complete la descripción del evento.");
       return;
     }
 
@@ -117,25 +154,23 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
           <div className="space-y-3">
             <label className="text-sm font-bold text-slate-600">Ubicación <span className="text-red-500">*</span></label>
-            <div className="grid grid-cols-2 gap-3">
-              <input 
-                type="number" 
-                step="any"
-                placeholder="Latitud" 
-                value={lat} 
-                onChange={(e) => setLat(e.target.value)}
-                className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
-                required
-              />
-              <input 
-                type="number" 
-                step="any"
-                placeholder="Longitud" 
-                value={lng} 
-                onChange={(e) => setLng(e.target.value)}
-                className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
-                required
-              />
+            <p className="text-xs text-slate-500">Confirmá la ubicación del problema en el mapa. Podés mover el marcador tocando otro punto.</p>
+            <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-200 relative z-0">
+              <MapContainer 
+                center={[-25.2855, -57.6150]} 
+                zoom={13} 
+                zoomControl={false}
+                className="w-full h-full"
+              >
+                <TileLayer
+                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                />
+                <LocationSelector setLocation={(l, lg) => { setLat(l); setLng(lg); }} />
+                <MapUpdater lat={lat} lng={lng} />
+                {lat && lng && (
+                  <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={defaultIcon} />
+                )}
+              </MapContainer>
             </div>
             <button 
               type="button" 
