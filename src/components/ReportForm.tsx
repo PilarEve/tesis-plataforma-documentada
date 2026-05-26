@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Severity, Report } from '../types/report';
 import { MapPin, Camera, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -47,7 +47,7 @@ interface ReportFormProps {
 export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
   const [lat, setLat] = useState<string>('');
   const [lng, setLng] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [severity, setSeverity] = useState<Severity>('medio');
   const [imageUrl, setImageUrl] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -81,6 +81,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
       alert("Seleccioná una ubicación en el mapa antes de enviar el reporte.");
       return;
     }
+    const description = descriptionRef.current?.value;
     if (!description) {
       alert("Por favor complete la descripción del evento.");
       return;
@@ -156,21 +157,23 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
             <label className="text-sm font-bold text-slate-600">Ubicación <span className="text-red-500">*</span></label>
             <p className="text-xs text-slate-500">Confirmá la ubicación del problema en el mapa. Podés mover el marcador tocando otro punto.</p>
             <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-200 relative z-0">
-              <MapContainer 
-                center={[-25.2855, -57.6150]} 
-                zoom={13} 
-                zoomControl={false}
-                className="w-full h-full"
-              >
-                <TileLayer
-                  url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                />
-                <LocationSelector setLocation={(l, lg) => { setLat(l); setLng(lg); }} />
-                <MapUpdater lat={lat} lng={lng} />
-                {lat && lng && (
-                  <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={defaultIcon} />
-                )}
-              </MapContainer>
+              {useMemo(() => (
+                <MapContainer 
+                  center={[-25.2855, -57.6150]} 
+                  zoom={13} 
+                  zoomControl={false}
+                  className="w-full h-full"
+                >
+                  <TileLayer
+                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                  />
+                  <LocationSelector setLocation={(l, lg) => { setLat(l); setLng(lg); }} />
+                  <MapUpdater lat={lat} lng={lng} />
+                  {lat && lng && (
+                    <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={defaultIcon} />
+                  )}
+                </MapContainer>
+              ), [lat, lng])}
             </div>
             <button 
               type="button" 
@@ -186,8 +189,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
           <div className="space-y-3">
             <label className="text-sm font-bold text-slate-600">Descripción del evento <span className="text-red-500">*</span></label>
             <textarea 
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              ref={descriptionRef}
               placeholder="Describa la situación de la inundación (ej: agua sobre la vereda, arroyo desbordado)..."
               className="w-full text-sm p-4 bg-slate-50 border border-slate-200 rounded-xl h-28 resize-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
               required
