@@ -31,88 +31,94 @@ interface NewsMarkerProps {
 export default function NewsMarker({ news }: NewsMarkerProps) {
   const icon = createCustomIcon();
   
-  const descripcionMostrar = news.descripcion || news.titulo;
+  // Requirement 1: Fallback description
+  const descripcionMostrar = news.descripcion?.trim() || news.titulo;
+  
+  // Utility for conditional rendering Requirement 3
+  const hasValue = (val: string | undefined | null) => val && val.trim() !== "";
 
   return (
     <Marker position={[news.latitud, news.longitud]} icon={icon}>
-      <Popup className="report-popup custom-news-popup md:min-w-[300px]">
-        <div className="w-72 flex flex-col gap-3 p-1">
-          {/* Título y Badge */}
+      <Popup className="report-popup custom-news-popup md:min-w-[320px]">
+        <div className="w-72 sm:w-80 flex flex-col gap-3 p-1">
+          {/* 1. Título y Badge Requirement 9 */}
           <div className="flex justify-between items-start gap-2">
-            <h3 className="font-bold text-gray-900 text-base leading-tight">
+            <h3 className="font-bold text-gray-900 text-lg leading-tight uppercase tracking-tight">
               {news.titulo}
             </h3>
-            <span className="bg-orange-100 text-orange-700 text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider whitespace-nowrap">
+            <span className="bg-orange-100 text-orange-700 text-[10px] font-extrabold px-2 py-1 rounded-full uppercase tracking-wider whitespace-nowrap shadow-sm border border-orange-200">
               Histórico
             </span>
           </div>
           
-          {/* Imagen Grande (Opcional) */}
+          {/* 2. Imagen Grande Requirement 2 & 6 */}
           {news.imagen_url && (
-            <div className="w-full h-48 sm:h-52 relative rounded-lg overflow-hidden shadow-md border border-gray-200">
+            <div className="w-full h-48 sm:h-[200px] relative rounded-xl overflow-hidden shadow-lg border border-gray-100">
               <img 
                 src={news.imagen_url} 
                 alt={news.titulo} 
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
               />
             </div>
           )}
 
-          {/* Descripción */}
-          {descripcionMostrar && (
-            <div className="text-sm text-gray-700 bg-gray-50 p-2 rounded border border-gray-100">
-              <p className="line-clamp-4 italic">
-                "{descripcionMostrar.length > 250 ? `${descripcionMostrar.substring(0, 250)}...` : descripcionMostrar}"
-              </p>
-            </div>
-          )}
+          {/* 3. Descripción Requirement 4 & 5 */}
+          <div className="text-sm text-gray-700 bg-orange-50/30 p-3 rounded-lg border border-orange-100/50">
+            <p className="leading-relaxed">
+              {descripcionMostrar}
+            </p>
+          </div>
 
-          {/* Detalles (Ocultando los vacíos) */}
-          <div className="text-xs text-gray-600 flex flex-col gap-1.5 mt-1 border-t border-gray-100 pt-2">
-            {news.fecha_publicacion && (
-              <p className="flex items-center gap-1.5">
-                <span className="font-semibold text-gray-800">Fecha:</span> 
-                {format(new Date(news.fecha_publicacion), 'dd/MM/yyyy')}
+          {/* Detalles Requirement 3 & 5 */}
+          <div className="text-xs text-gray-600 flex flex-col gap-2 mt-1 border-t border-gray-100 pt-3">
+            {hasValue(news.fecha_publicacion) && (
+              <p className="flex items-center gap-2">
+                <span className="font-bold text-gray-800 w-16">Fecha:</span> 
+                <span className="text-gray-600 font-medium">
+                  {format(new Date(news.fecha_publicacion), 'dd/MM/yyyy')}
+                </span>
               </p>
             )}
             
-            {news.ubicacion_texto && (
-              <p className="flex items-start gap-1.5">
-                <span className="font-semibold text-gray-800">Ubicación:</span> 
-                <span className="flex-1">{news.ubicacion_texto}</span>
+            {hasValue(news.ubicacion_texto) && (
+              <p className="flex items-start gap-2">
+                <span className="font-bold text-gray-800 w-16">Ubicación:</span> 
+                <span className="flex-1 text-gray-600">{news.ubicacion_texto}</span>
               </p>
             )}
             
-            {news.tipo_evento && (
-              <p className="flex items-center gap-1.5">
-                <span className="font-semibold text-gray-800">Tipo:</span> 
-                <span className="capitalize">{news.tipo_evento}</span>
+            {hasValue(news.tipo_evento) && (
+              <p className="flex items-center gap-2">
+                <span className="font-bold text-gray-800 w-16">Tipo:</span> 
+                <span className="capitalize text-gray-600 px-2 py-0.5 bg-gray-100 rounded">{news.tipo_evento}</span>
               </p>
             )}
             
-            {news.gravedad && (
-              <p className="flex items-center gap-1.5">
-                <span className="font-semibold text-gray-800">Gravedad:</span> 
-                <span className="capitalize font-medium px-1.5 py-0.5 rounded text-orange-700 bg-orange-50">{news.gravedad}</span>
+            {hasValue(news.gravedad) && (
+              <p className="flex items-center gap-2">
+                <span className="font-bold text-gray-800 w-16">Gravedad:</span> 
+                <span className="capitalize font-bold px-2 py-0.5 rounded text-orange-700 bg-orange-100/50 border border-orange-200/50">
+                  {news.gravedad}
+                </span>
               </p>
             )}
 
-            {news.fuente && (
-              <p className="flex items-center gap-1.5">
-                <span className="font-semibold text-gray-800">Fuente:</span> 
-                <span className="text-gray-500">{news.fuente}</span>
+            {hasValue(news.fuente) && (
+              <p className="flex items-center gap-2">
+                <span className="font-bold text-gray-800 w-16">Fuente:</span> 
+                <span className="text-gray-500 italic truncate">{news.fuente}</span>
               </p>
             )}
           </div>
 
-          {/* Enlace URL */}
+          {/* 9. Enlace URL Requirement 5 */}
           {news.url && (
-            <div className="mt-1 pt-2 border-t border-gray-100">
+            <div className="mt-1 pt-2 border-t border-gray-50">
               <a 
                 href={news.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-xs font-semibold text-blue-600 hover:text-blue-800 underline transition-colors w-full text-center block bg-blue-50 hover:bg-blue-100 py-1.5 rounded"
+                className="text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 w-full text-center block py-2.5 rounded-lg shadow-sm hover:shadow-md uppercase tracking-wide"
               >
                 Ver Noticia Completa
               </a>
