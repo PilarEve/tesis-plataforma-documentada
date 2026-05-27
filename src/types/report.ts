@@ -16,11 +16,13 @@ export interface NoticiaHistorica {
   latitud: number;
   longitud: number;
   titulo: string;
+  descripcion?: string;
   fuente: string;
   fecha_publicacion: string;
   ubicacion_texto: string;
   tipo_evento: string;
   gravedad: string;
+  imagen_url?: string;
   url?: string;
   creado_en?: string;
 }

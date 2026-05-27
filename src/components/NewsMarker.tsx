@@ -45,6 +45,22 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             <div className="text-xs text-gray-600 mb-2 font-semibold">
               <p>Fuente: {news.fuente}</p>
             </div>
+
+            {news.imagen_url && (
+              <div className="mb-2 w-full h-24 relative rounded overflow-hidden shadow-sm">
+                <img 
+                  src={news.imagen_url} 
+                  alt="Imagen de la noticia" 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            {news.descripcion && (
+              <p className="text-xs text-gray-700 mb-2 italic line-clamp-3">
+                {news.descripcion.length > 150 ? `${news.descripcion.substring(0, 150)}...` : news.descripcion}
+              </p>
+            )}
             
             <p className="text-sm text-gray-700 mb-2">
               Ubicación: {news.ubicacion_texto}

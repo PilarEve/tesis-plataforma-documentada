@@ -66,7 +66,14 @@ export default function MapView() {
           console.error('Error fetching news:', newsError);
         } else if (newsData) {
           const validNews = newsData
-            .filter(n => n.latitud != null && n.longitud != null)
+            .filter(n => 
+              n.latitud != null && 
+              n.longitud != null && 
+              n.latitud !== '' && 
+              n.longitud !== '' && 
+              !isNaN(Number(n.latitud)) && 
+              !isNaN(Number(n.longitud))
+            )
             .map(n => {
               const parsedLat = Number(n.latitud);
               const parsedLng = Number(n.longitud);
