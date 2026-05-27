@@ -201,15 +201,6 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">Descripción del evento <span className="text-red-500">*</span></label>
-            <textarea 
-              ref={descriptionRef}
-              placeholder="Describa la situación de la inundación (ej: agua sobre la vereda, arroyo desbordado)..."
-              className="w-full text-sm p-4 bg-slate-50 border border-slate-200 rounded-xl h-28 resize-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
-            />
-          </div>
-
-          <div className="space-y-3">
             <label className="text-sm font-bold text-slate-600">¿Qué afectaciones se observan?</label>
             <p className="text-xs text-slate-500">Opcional. Podés seleccionar una o varias opciones.</p>
             <div className="flex flex-wrap gap-2">
@@ -245,6 +236,16 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
                 </p>
               </div>
             )}
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-slate-600">Descripción del evento</label>
+            <p className="text-xs text-slate-500">Opcional. Podés agregar más detalles sobre la situación.</p>
+            <textarea 
+              ref={descriptionRef}
+              placeholder="Describa la situación de la inundación (ej: agua sobre la vereda, arroyo desbordado)..."
+              className="w-full text-sm p-4 bg-slate-50 border border-slate-200 rounded-xl h-28 resize-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
+            />
           </div>
 
           <div className="space-y-3">
