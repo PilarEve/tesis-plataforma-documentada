@@ -7,18 +7,8 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 
 
-const getSeverityColor = (severity: Report['severity']) => {
-  switch (severity) {
-    case 'bajo': return '#22c55e'; // green-500
-    case 'medio': return '#eab308'; // yellow-500
-    case 'alto': return '#f97316'; // orange-500
-    case 'critico': return '#ef4444'; // red-500
-    default: return '#3b82f6'; // blue-500
-  }
-};
-
-const createCustomIcon = (severity: Report['severity']) => {
-  const color = getSeverityColor(severity);
+const createCustomIcon = () => {
+  const color = '#3b82f6'; // blue-500
   
   const svgIcon = `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="${color}" width="32" height="32" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -41,7 +31,7 @@ interface ReportMarkerProps {
 }
 
 export default function ReportMarker({ report }: ReportMarkerProps) {
-  const icon = createCustomIcon(report.severity);
+  const icon = createCustomIcon();
   
   return (
     <Marker position={[report.lat, report.lng]} icon={icon}>
@@ -60,11 +50,15 @@ export default function ReportMarker({ report }: ReportMarkerProps) {
             </div>
           )}
           <div>
-            <div className="flex justify-between items-start mb-2">
-              <span className="font-bold text-gray-800 text-sm">
-                Severidad: <span style={{ color: getSeverityColor(report.severity) }} className="uppercase">{report.severity}</span>
-              </span>
-            </div>
+            {report.impactTags && report.impactTags.length > 0 && (
+              <div className="mb-3 flex flex-wrap gap-1">
+                {report.impactTags.map(tag => (
+                  <span key={tag} className="bg-blue-50 text-blue-700 border border-blue-200 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
             <p className="text-sm text-gray-700 mb-2">{report.description}</p>
             <div className="text-xs text-gray-500 flex flex-col gap-1">
               <p>Fecha: {format(new Date(report.dateTime), 'dd/MM/yyyy HH:mm')}</p>

@@ -1,12 +1,24 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Severity } from '../types/report';
 import { Layers, Filter, ChevronDown, ChevronUp } from 'lucide-react';
 
+const AVAILABLE_TAGS = [
+  'Calle inundada',
+  'Deslizamiento',
+  'Árbol caído',
+  'Vivienda afectada',
+  'Vehículo afectado',
+  'Persona atrapada',
+  'Fallecimiento reportado',
+  'Interrupción de tránsito',
+  'Servicio público afectado',
+  'Sin daños visibles'
+];
+
 interface FilterPanelProps {
-  onFilterChange: (severities: Severity[], status: string) => void;
-  selectedSeverities: Severity[];
+  onFilterChange: (tags: string[], status: string) => void;
+  selectedTags: string[];
   selectedStatus: string;
   onToggleHeatmap: (isVisible: boolean) => void;
   isHeatmapVisible: boolean;
@@ -14,7 +26,7 @@ interface FilterPanelProps {
 
 export default function FilterPanel({
   onFilterChange,
-  selectedSeverities,
+  selectedTags,
   selectedStatus,
   onToggleHeatmap,
   isHeatmapVisible
@@ -28,11 +40,11 @@ export default function FilterPanel({
     }
   }, []);
   
-  const handleSeverityToggle = (severity: Severity) => {
-    if (selectedSeverities.includes(severity)) {
-      onFilterChange(selectedSeverities.filter(s => s !== severity), selectedStatus);
+  const handleTagToggle = (tag: string) => {
+    if (selectedTags.includes(tag)) {
+      onFilterChange(selectedTags.filter(t => t !== tag), selectedStatus);
     } else {
-      onFilterChange([...selectedSeverities, severity], selectedStatus);
+      onFilterChange([...selectedTags, tag], selectedStatus);
     }
   };
 
@@ -76,27 +88,22 @@ export default function FilterPanel({
             </label>
           </div>
 
-          {/* Filtro por Severidad */}
+          {/* Filtro por Afectaciones */}
           <div className="mb-5">
             <h3 className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-3 flex items-center gap-1.5">
-              <Filter size={14} /> Severidad
+              <Filter size={14} /> Afectaciones
             </h3>
-            <div className="space-y-2.5">
-              {(['bajo', 'medio', 'alto', 'critico'] as Severity[]).map(sev => (
-                <label key={sev} className="flex items-center space-x-3 cursor-pointer group w-fit">
+            <div className="max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200 pr-2 space-y-2.5">
+              {AVAILABLE_TAGS.map(tag => (
+                <label key={tag} className="flex items-center space-x-3 cursor-pointer group w-fit">
                   <input 
                     type="checkbox" 
-                    checked={selectedSeverities.includes(sev)}
-                    onChange={() => handleSeverityToggle(sev)}
+                    checked={selectedTags.includes(tag)}
+                    onChange={() => handleTagToggle(tag)}
                     className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/30 transition-shadow cursor-pointer"
                   />
-                  <span className="text-sm capitalize text-slate-600 font-medium flex items-center gap-2 group-hover:text-slate-900 transition-colors">
-                    <span className={`w-2.5 h-2.5 rounded-full shadow-sm ${
-                      sev === 'bajo' ? 'bg-green-500 shadow-green-500/40' :
-                      sev === 'medio' ? 'bg-yellow-400 shadow-yellow-400/40' :
-                      sev === 'alto' ? 'bg-orange-500 shadow-orange-500/40' : 'bg-red-500 shadow-red-500/40'
-                    }`}></span>
-                    {sev}
+                  <span className="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition-colors">
+                    {tag}
                   </span>
                 </label>
               ))}
@@ -108,7 +115,7 @@ export default function FilterPanel({
             <h3 className="text-[11px] font-bold text-slate-400 tracking-wider uppercase mb-3">Estado del Reporte</h3>
             <select 
               value={selectedStatus}
-              onChange={(e) => onFilterChange(selectedSeverities, e.target.value)}
+              onChange={(e) => onFilterChange(selectedTags, e.target.value)}
               className="w-full text-sm text-slate-700 bg-white/50 border border-slate-200 rounded-xl px-3 py-2.5 shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-500/20 outline-none transition-all cursor-pointer font-medium"
             >
               <option value="todos">Todos los reportes</option>

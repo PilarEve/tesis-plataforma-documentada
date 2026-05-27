@@ -5,7 +5,7 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { mockReports } from '../data/reports';
-import { Report, Severity } from '../types/report';
+import { Report } from '../types/report';
 import ReportMarker from './ReportMarker';
 import FilterPanel from './FilterPanel';
 import SidebarReports from './SidebarReports';
@@ -20,7 +20,7 @@ const ASUNCION_CENTER: [number, number] = [-25.2855, -57.6150];
 export default function MapView() {
   const [reports, setReports] = useState<Report[]>([]); // Inicializamos vacío
   const [loading, setLoading] = useState(true);
-  const [selectedSeverities, setSelectedSeverities] = useState<Severity[]>(['bajo', 'medio', 'alto', 'critico']);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
   const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
@@ -47,7 +47,7 @@ export default function MapView() {
             lat: Number(dbReport.latitud),
             lng: Number(dbReport.longitud),
             description: dbReport.descripcion || 'Sin descripción',
-            severity: (dbReport.nivel_agua_categoria || 'bajo') as Severity,
+            impactTags: dbReport.afectaciones || [],
             dateTime: dbReport.creado_en || new Date().toISOString(),
             imageUrl: dbReport.imagen_url || undefined,
             status: (dbReport.estado || 'pendiente') as Report['status']
@@ -67,14 +67,15 @@ export default function MapView() {
 
   const filteredReports = useMemo(() => {
     return reports.filter(report => {
-      const matchSeverity = selectedSeverities.includes(report.severity);
+      const matchTags = selectedTags.length === 0 || 
+        (report.impactTags && report.impactTags.some(tag => selectedTags.includes(tag)));
       const matchStatus = selectedStatus === 'todos' || report.status === selectedStatus;
-      return matchSeverity && matchStatus;
+      return matchTags && matchStatus;
     });
-  }, [reports, selectedSeverities, selectedStatus]);
+  }, [reports, selectedTags, selectedStatus]);
 
-  const handleFilterChange = (severities: Severity[], status: string) => {
-    setSelectedSeverities(severities);
+  const handleFilterChange = (tags: string[], status: string) => {
+    setSelectedTags(tags);
     setSelectedStatus(status);
   };
 
@@ -85,7 +86,7 @@ export default function MapView() {
         latitud: newReportData.lat,
         longitud: newReportData.lng,
         descripcion: newReportData.description,
-        nivel_agua_categoria: newReportData.severity,
+        afectaciones: newReportData.impactTags,
         imagen_url: newReportData.imageUrl || null,
         tipo_evento: 'inundacion', // Valor por defecto
         estado: 'pendiente'
@@ -106,7 +107,7 @@ export default function MapView() {
           lat: Number(data.latitud),
           lng: Number(data.longitud),
           description: data.descripcion || 'Sin descripción',
-          severity: (data.nivel_agua_categoria || 'bajo') as Severity,
+          impactTags: data.afectaciones || [],
           dateTime: data.creado_en || new Date().toISOString(),
           imageUrl: data.imagen_url || undefined,
           status: (data.estado || 'pendiente') as Report['status']
@@ -178,7 +179,7 @@ export default function MapView() {
       {/* Contenedor Principal del Mapa */}
       <div className="flex-1 relative h-full w-full">
         <FilterPanel 
-          selectedSeverities={selectedSeverities}
+          selectedTags={selectedTags}
           selectedStatus={selectedStatus}
           onFilterChange={handleFilterChange}
           isHeatmapVisible={isHeatmapVisible}
