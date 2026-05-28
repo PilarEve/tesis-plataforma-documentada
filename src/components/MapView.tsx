@@ -82,13 +82,13 @@ export default function MapView() {
   const handleAddReport = async (newReportData: Omit<Report, 'id' | 'status'>) => {
     try {
       // Mapeamos del formato frontend al formato de la tabla en Supabase
+      // Omitimos 'estado' para que la base de datos use automáticamente su valor por defecto ('pendiente')
       const newReportToInsert = {
         latitud: newReportData.lat,
         longitud: newReportData.lng,
         descripcion: newReportData.description || null,
         afectaciones: newReportData.impactTags ?? [],
-        imagen_url: newReportData.imageUrl || null,
-        estado: 'pendiente'
+        imagen_url: newReportData.imageUrl || null
       };
 
       console.log('[ReporteForm] Insertando en Supabase:', newReportToInsert);

@@ -13,10 +13,8 @@ async function insertReport() {
         latitud: -25.2950,
         longitud: -57.6250,
         descripcion: 'Acumulación importante de agua sobre la calzada tras lluvias intensas. El agua cubre parcialmente las veredas y dificulta el tránsito vehicular.',
-        nivel_agua_categoria: 'alto',
-        tipo_evento: 'inundacion',
-        estado: 'pendiente',
-        imagen_url: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?q=80&w=1000&auto=format&fit=crop'
+        imagen_url: 'https://images.unsplash.com/photo-1547683905-f686c993aae5?q=80&w=1000&auto=format&fit=crop',
+        afectaciones: ['Calle inundada', 'Interrupción de tránsito']
       }
     ]);
 

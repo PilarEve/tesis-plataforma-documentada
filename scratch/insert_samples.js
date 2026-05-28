@@ -10,41 +10,31 @@ const sampleReports = [
     latitud: -25.285,
     longitud: -57.568,
     descripcion: 'Inundación repentina cerca del Shopping del Sol. El agua cubre media calzada.',
-    nivel_agua_categoria: 'medio',
-    tipo_evento: 'inundacion',
-    estado: 'pendiente'
+    afectaciones: ['Calle inundada', 'Interrupción de tránsito']
   },
   {
     latitud: -25.326,
     longitud: -57.595,
     descripcion: 'Arroyo desbordado cerca de la Terminal. Tránsito interrumpido.',
-    nivel_agua_categoria: 'alto',
-    tipo_evento: 'inundacion',
-    estado: 'pendiente'
+    afectaciones: ['Calle inundada', 'Interrupción de tránsito']
   },
   {
     latitud: -25.277,
     longitud: -57.635,
     descripcion: 'Acumulación de agua en la zona de la Costanera. Precaución.',
-    nivel_agua_categoria: 'bajo',
-    tipo_evento: 'inundacion',
-    estado: 'pendiente'
+    afectaciones: ['Calle inundada', 'Sin daños visibles']
   },
   {
     latitud: -25.297,
     longitud: -57.585,
     descripcion: 'Puntos críticos en Villa Morra. Sumideros tapados.',
-    nivel_agua_categoria: 'alto',
-    tipo_evento: 'inundacion',
-    estado: 'pendiente'
+    afectaciones: ['Servicio público afectado', 'Interrupción de tránsito']
   },
   {
     latitud: -25.305,
     longitud: -57.620,
     descripcion: 'Agua estancada en Barrio Obrero después de la tormenta.',
-    nivel_agua_categoria: 'bajo',
-    tipo_evento: 'inundacion',
-    estado: 'pendiente'
+    afectaciones: ['Calle inundada']
   }
 ];
 
