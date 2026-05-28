@@ -85,12 +85,13 @@ export default function MapView() {
       const newReportToInsert = {
         latitud: newReportData.lat,
         longitud: newReportData.lng,
-        descripcion: newReportData.description,
-        afectaciones: newReportData.impactTags,
+        descripcion: newReportData.description || null,
+        afectaciones: newReportData.impactTags ?? [],
         imagen_url: newReportData.imageUrl || null,
-        tipo_evento: 'inundacion', // Valor por defecto
         estado: 'pendiente'
       };
+
+      console.log('[ReporteForm] Insertando en Supabase:', newReportToInsert);
 
       const { data, error } = await supabase
         .from('reportes')
@@ -98,7 +99,15 @@ export default function MapView() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[ReporteForm] Error de Supabase:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
+      }
 
       if (data) {
         // Mapeamos el resultado de vuelta al formato frontend
@@ -117,9 +126,22 @@ export default function MapView() {
         setShowReportForm(false);
         if (mapRef) mapRef.setView([mappedNewReport.lat, mappedNewReport.lng], 15);
       }
-    } catch (error) {
-      console.error('Error saving report:', error);
-      alert('Hubo un error al guardar el reporte. Por favor intente de nuevo.');
+    } catch (err: unknown) {
+      const error = err as { message?: string; code?: string; hint?: string };
+      console.error('[ReporteForm] Error completo al guardar reporte:', err);
+
+      // Mensajes de error específicos según el tipo de fallo
+      if (error?.code === '42703') {
+        alert('Error de estructura: una columna no existe en la base de datos. Revisá la consola del navegador para más detalles.');
+      } else if (error?.code === '23502') {
+        alert(`Error: falta un campo obligatorio en la base de datos. Detalle: ${error.hint || error.message}`);
+      } else if (error?.code === '42501') {
+        alert('Error de permisos: no tenés autorización para insertar reportes. Verificá las políticas RLS de Supabase.');
+      } else if (error?.message?.includes('storage')) {
+        alert('Error al subir la imagen. Verificá los permisos del bucket en Supabase Storage.');
+      } else {
+        alert(`Error al guardar el reporte: ${error?.message || 'Error desconocido'}. Revisá la consola del navegador para más detalles.`);
+      }
     }
   };
 
