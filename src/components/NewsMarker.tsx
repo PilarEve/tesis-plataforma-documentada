@@ -31,44 +31,97 @@ interface NewsMarkerProps {
 export default function NewsMarker({ news }: NewsMarkerProps) {
   const icon = createCustomIcon();
   
+  // Requirement 1: Fallback description
+  const descripcionMostrar = news.descripcion?.trim() || news.titulo;
+  
+  // Utility for conditional rendering Requirement 3
+  const hasValue = (val: string | undefined | null) => val && val.trim() !== "";
+
   return (
     <Marker position={[news.latitud, news.longitud]} icon={icon}>
-      <Popup className="report-popup min-w-[250px]">
-        <div className="w-64 p-0">
-          <div>
-            <div className="flex justify-between items-start mb-2">
-              <span className="font-bold text-gray-800 text-sm">
-                {news.titulo}
-              </span>
+      <Popup className="report-popup custom-news-popup">
+        <div className="w-56 sm:w-60 flex flex-col gap-1 p-0.5">
+          {/* 1. Título y Badge Requirement 9 */}
+          <div className="flex justify-between items-start gap-2">
+            <h3 className="font-bold text-gray-900 text-sm leading-tight uppercase tracking-tight">
+              {news.titulo}
+            </h3>
+            <span className="bg-orange-100 text-orange-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap border border-orange-200">
+              Histórico
+            </span>
+          </div>
+          
+          {/* 2. Imagen Grande Requirement 2 & 6 */}
+          {news.imagen_url && (
+            <div className="w-full h-24 sm:h-28 relative rounded overflow-hidden border border-gray-100">
+              <img 
+                src={news.imagen_url} 
+                alt={news.titulo} 
+                className="w-full h-full object-cover"
+              />
             </div>
-            
-            <div className="text-xs text-gray-600 mb-2 font-semibold">
-              <p>Fuente: {news.fuente}</p>
-            </div>
-            
-            <p className="text-sm text-gray-700 mb-2">
-              Ubicación: {news.ubicacion_texto}
-            </p>
-            
-            <div className="text-xs text-gray-500 flex flex-col gap-1 mb-2">
-              {news.fecha_publicacion && (
-                <p>Fecha: {format(new Date(news.fecha_publicacion), 'dd/MM/yyyy')}</p>
-              )}
-              <p>Tipo: <span className="capitalize">{news.tipo_evento}</span></p>
-              <p>Gravedad: <span className="capitalize text-orange-600">{news.gravedad}</span></p>
-            </div>
+          )}
 
-            {news.url && (
+          <div className="text-[11px] text-gray-700 px-0.5">
+            <p className="leading-tight">
+              {descripcionMostrar}
+            </p>
+          </div>
+
+          <div className="text-[10px] text-gray-600 grid grid-cols-2 gap-x-2 gap-y-0 border-t border-gray-50 pt-1">
+            {hasValue(news.fecha_publicacion) && (
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800">Fecha:</span> 
+                <span className="text-gray-600 truncate">
+                  {format(new Date(news.fecha_publicacion), 'dd/MM/yyyy')}
+                </span>
+              </p>
+            )}
+            
+            {hasValue(news.tipo_evento) && (
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800">Tipo:</span> 
+                <span className="capitalize text-gray-600 truncate">{news.tipo_evento}</span>
+              </p>
+            )}
+            
+            {hasValue(news.gravedad) && (
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800">Gravedad:</span> 
+                <span className="capitalize font-bold text-orange-700 truncate">
+                  {news.gravedad}
+                </span>
+              </p>
+            )}
+
+            {hasValue(news.fuente) && (
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800">Fuente:</span> 
+                <span className="text-gray-500 italic truncate">{news.fuente}</span>
+              </p>
+            )}
+
+            {hasValue(news.ubicacion_texto) && (
+              <p className="flex items-start gap-1 col-span-2 mt-0.5 border-t border-gray-50/50 pt-0.5">
+                <span className="font-bold text-gray-800 shrink-0">Ubicación:</span> 
+                <span className="flex-1 text-gray-600 leading-tight">{news.ubicacion_texto}</span>
+              </p>
+            )}
+          </div>
+
+          {/* 9. Enlace URL Requirement 5 */}
+          {news.url && (
+            <div className="mt-0.5">
               <a 
                 href={news.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-xs text-blue-600 hover:text-blue-800 underline mt-1 inline-block"
+                className="text-[9px] font-bold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 w-full text-center block py-1 rounded shadow-sm uppercase tracking-wide"
               >
-                Ver noticia original
+                Ver Noticia Completa
               </a>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </Popup>
     </Marker>

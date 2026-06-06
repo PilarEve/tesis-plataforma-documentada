@@ -6,7 +6,6 @@ import { Report } from '../types/report';
 import { format } from 'date-fns';
 import Image from 'next/image';
 
-
 const getSeverityColor = (severity: Report['severity']) => {
   switch (severity) {
     case 'bajo': return '#22c55e'; // green-500
@@ -14,6 +13,16 @@ const getSeverityColor = (severity: Report['severity']) => {
     case 'alto': return '#f97316'; // orange-500
     case 'critico': return '#ef4444'; // red-500
     default: return '#3b82f6'; // blue-500
+  }
+};
+
+const getSeverityBg = (severity: Report['severity']) => {
+  switch (severity) {
+    case 'bajo': return 'bg-green-100/50 border-green-200 text-green-700';
+    case 'medio': return 'bg-yellow-100/50 border-yellow-200 text-yellow-700';
+    case 'alto': return 'bg-orange-100/50 border-orange-200 text-orange-700';
+    case 'critico': return 'bg-red-100/50 border-red-200 text-red-700';
+    default: return 'bg-blue-100/50 border-blue-200 text-blue-700';
   }
 };
 
@@ -45,31 +54,48 @@ export default function ReportMarker({ report }: ReportMarkerProps) {
   
   return (
     <Marker position={[report.lat, report.lng]} icon={icon}>
-      <Popup className="report-popup min-w-[250px]">
-        <div className="w-64 p-0">
+      <Popup className="report-popup custom-report-popup md:min-w-[320px]">
+        <div className="w-72 sm:w-80 flex flex-col gap-3 p-1">
+          {/* Header & Severity Badge */}
+          <div className="flex justify-between items-center gap-2">
+            <span className="text-[10px] uppercase font-extrabold tracking-widest text-gray-500">Reporte Ciudadano</span>
+            <span className={`text-[10px] font-extrabold px-2 py-1 rounded-full uppercase tracking-wider border shadow-sm ${getSeverityBg(report.severity)}`}>
+              {report.severity}
+            </span>
+          </div>
+
+          {/* Image */}
           {report.imageUrl && (
-            <div className="-mx-5 -mt-4 mb-3">
+            <div className="w-full h-48 sm:h-[180px] relative rounded-xl overflow-hidden shadow-lg border border-gray-100">
               <Image 
                 src={report.imageUrl} 
                 alt="Imagen del reporte" 
-                width={256}
-                height={128}
-                className="w-full h-32 object-cover rounded-t-lg"
+                fill
+                className="object-cover transition-transform duration-300 hover:scale-105"
                 unoptimized
               />
             </div>
           )}
-          <div>
-            <div className="flex justify-between items-start mb-2">
-              <span className="font-bold text-gray-800 text-sm">
-                Severidad: <span style={{ color: getSeverityColor(report.severity) }} className="uppercase">{report.severity}</span>
+
+          {/* Description */}
+          <div className="text-sm text-gray-700 bg-gray-50/50 p-3 rounded-lg border border-gray-100">
+            <p className="leading-relaxed font-medium text-gray-800">
+              {report.description}
+            </p>
+          </div>
+
+          {/* Footer Details */}
+          <div className="text-[11px] text-gray-500 flex flex-col gap-1.5 mt-1 border-t border-gray-100 pt-3">
+            <p className="flex items-center gap-2">
+              <span className="font-bold text-gray-700 w-14">Fecha:</span> 
+              <span>{format(new Date(report.dateTime), 'dd/MM/yyyy HH:mm')}</span>
+            </p>
+            <p className="flex items-center gap-2">
+              <span className="font-bold text-gray-700 w-14">Estado:</span> 
+              <span className="capitalize px-1.5 py-0.5 bg-gray-100 rounded-md font-semibold text-gray-600 border border-gray-200">
+                {report.status}
               </span>
-            </div>
-            <p className="text-sm text-gray-700 mb-2">{report.description}</p>
-            <div className="text-xs text-gray-500 flex flex-col gap-1">
-              <p>Fecha: {format(new Date(report.dateTime), 'dd/MM/yyyy HH:mm')}</p>
-              <p>Estado: <span className="capitalize">{report.status}</span></p>
-            </div>
+            </p>
           </div>
         </div>
       </Popup>
