@@ -4,6 +4,7 @@ import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { NoticiaHistorica } from '../types/report';
 import { format } from 'date-fns';
+import Image from 'next/image';
 
 const ORANGE_COLOR = '#f97316'; // orange-500
 
@@ -51,13 +52,14 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             </span>
           </div>
           
-          {/* 2. Imagen Grande Requirement 2 & 6 */}
           {news.imagen_url && (
             <div className="w-full h-24 sm:h-28 relative rounded overflow-hidden border border-gray-100">
-              <img 
+              <Image 
                 src={news.imagen_url} 
                 alt={news.titulo} 
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
+                sizes="(max-width: 640px) 224px, 240px"
               />
             </div>
           )}

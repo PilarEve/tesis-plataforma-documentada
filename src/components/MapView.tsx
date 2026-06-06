@@ -5,7 +5,7 @@ import { MapContainer, TileLayer } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { mockReports } from '../data/reports';
-import { Report, Severity, NoticiaHistorica } from '../types/report';
+import { Report, NoticiaHistorica } from '../types/report';
 import ReportMarker from './ReportMarker';
 import NewsMarker from './NewsMarker';
 import FilterPanel from './FilterPanel';
@@ -22,7 +22,7 @@ export default function MapView() {
   const [reports, setReports] = useState<Report[]>([]); // Inicializamos vacío
   const [news, setNews] = useState<NoticiaHistorica[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedSeverities, setSelectedSeverities] = useState<Severity[]>(['bajo', 'medio', 'alto', 'critico']);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<string>('todos');
   const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
@@ -49,7 +49,7 @@ export default function MapView() {
             lat: Number(dbReport.latitud),
             lng: Number(dbReport.longitud),
             description: dbReport.descripcion || 'Sin descripción',
-            severity: (dbReport.nivel_agua_categoria || 'bajo') as Severity,
+            impactTags: dbReport.afectaciones || [],
             dateTime: dbReport.creado_en || new Date().toISOString(),
             imageUrl: dbReport.imagen_url || undefined,
             status: (dbReport.estado || 'pendiente') as Report['status']
@@ -99,29 +99,31 @@ export default function MapView() {
 
   const filteredReports = useMemo(() => {
     return reports.filter(report => {
-      const matchSeverity = selectedSeverities.includes(report.severity);
+      const matchTags = selectedTags.length === 0 || 
+        (report.impactTags && report.impactTags.some(tag => selectedTags.includes(tag)));
       const matchStatus = selectedStatus === 'todos' || report.status === selectedStatus;
-      return matchSeverity && matchStatus;
+      return matchTags && matchStatus;
     });
-  }, [reports, selectedSeverities, selectedStatus]);
+  }, [reports, selectedTags, selectedStatus]);
 
-  const handleFilterChange = (severities: Severity[], status: string) => {
-    setSelectedSeverities(severities);
+  const handleFilterChange = (tags: string[], status: string) => {
+    setSelectedTags(tags);
     setSelectedStatus(status);
   };
 
   const handleAddReport = async (newReportData: Omit<Report, 'id' | 'status'>) => {
     try {
       // Mapeamos del formato frontend al formato de la tabla en Supabase
+      // Omitimos 'estado' para que la base de datos use automáticamente su valor por defecto ('pendiente')
       const newReportToInsert = {
         latitud: newReportData.lat,
         longitud: newReportData.lng,
-        descripcion: newReportData.description,
-        nivel_agua_categoria: newReportData.severity,
-        imagen_url: newReportData.imageUrl || null,
-        tipo_evento: 'inundacion', // Valor por defecto
-        estado: 'pendiente'
+        descripcion: newReportData.description || null,
+        afectaciones: newReportData.impactTags ?? [],
+        imagen_url: newReportData.imageUrl || null
       };
+
+      console.log('[ReporteForm] Insertando en Supabase:', newReportToInsert);
 
       const { data, error } = await supabase
         .from('reportes')
@@ -129,7 +131,15 @@ export default function MapView() {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[ReporteForm] Error de Supabase:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
+      }
 
       if (data) {
         // Mapeamos el resultado de vuelta al formato frontend
@@ -138,7 +148,7 @@ export default function MapView() {
           lat: Number(data.latitud),
           lng: Number(data.longitud),
           description: data.descripcion || 'Sin descripción',
-          severity: (data.nivel_agua_categoria || 'bajo') as Severity,
+          impactTags: data.afectaciones || [],
           dateTime: data.creado_en || new Date().toISOString(),
           imageUrl: data.imagen_url || undefined,
           status: (data.estado || 'pendiente') as Report['status']
@@ -148,9 +158,22 @@ export default function MapView() {
         setShowReportForm(false);
         if (mapRef) mapRef.setView([mappedNewReport.lat, mappedNewReport.lng], 15);
       }
-    } catch (error) {
-      console.error('Error saving report:', error);
-      alert('Hubo un error al guardar el reporte. Por favor intente de nuevo.');
+    } catch (err: unknown) {
+      const error = err as { message?: string; code?: string; hint?: string };
+      console.error('[ReporteForm] Error completo al guardar reporte:', err);
+
+      // Mensajes de error específicos según el tipo de fallo
+      if (error?.code === '42703') {
+        alert('Error de estructura: una columna no existe en la base de datos. Revisá la consola del navegador para más detalles.');
+      } else if (error?.code === '23502') {
+        alert(`Error: falta un campo obligatorio en la base de datos. Detalle: ${error.hint || error.message}`);
+      } else if (error?.code === '42501') {
+        alert('Error de permisos: no tenés autorización para insertar reportes. Verificá las políticas RLS de Supabase.');
+      } else if (error?.message?.includes('storage')) {
+        alert('Error al subir la imagen. Verificá los permisos del bucket en Supabase Storage.');
+      } else {
+        alert(`Error al guardar el reporte: ${error?.message || 'Error desconocido'}. Revisá la consola del navegador para más detalles.`);
+      }
     }
   };
 
@@ -210,7 +233,7 @@ export default function MapView() {
       {/* Contenedor Principal del Mapa */}
       <div className="flex-1 relative h-full w-full">
         <FilterPanel 
-          selectedSeverities={selectedSeverities}
+          selectedTags={selectedTags}
           selectedStatus={selectedStatus}
           onFilterChange={handleFilterChange}
           isHeatmapVisible={isHeatmapVisible}

@@ -1,4 +1,5 @@
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 require('dotenv').config({ path: '.env.local' });
 
@@ -28,7 +29,7 @@ async function testSupabase() {
   }
 
   // Test Storage bucket
-  const { data: bucketData, error: bucketError } = await supabase.storage.getBucket('reportes');
+  const { error: bucketError } = await supabase.storage.getBucket('reportes');
 
   if (bucketError) {
     console.error('Storage error:', bucketError.message);
