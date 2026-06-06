@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Severity, Report } from '../types/report';
 import { MapPin, Camera, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import Image from 'next/image';
 
 
 interface ReportFormProps {
@@ -193,10 +194,12 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
             <div className="relative border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden bg-slate-50 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer group min-h-[150px] flex flex-col items-center justify-center">
               {imageUrl ? (
                 <div className="w-full h-48 relative">
-                  <img 
+                  <Image 
                     src={imageUrl} 
                     alt="Vista previa" 
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    unoptimized={imageUrl.startsWith('blob:')}
                   />
                   <div className="absolute inset-0 bg-slate-900/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                     <span className="text-white text-xs font-bold bg-slate-900/60 px-3 py-1.5 rounded-full backdrop-blur-sm">Cambiar Imagen</span>

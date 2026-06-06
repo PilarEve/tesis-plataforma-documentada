@@ -1,4 +1,5 @@
 
+/* eslint-disable @typescript-eslint/no-require-imports */
 const { createClient } = require('@supabase/supabase-js');
 
 const supabaseUrl = 'https://gexfcndaymqdnuobjxnb.supabase.co';
@@ -50,7 +51,7 @@ const sampleReports = [
 
 async function insertSamples() {
   console.log('Inserting sample reports...');
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('reportes')
     .insert(sampleReports);
 
