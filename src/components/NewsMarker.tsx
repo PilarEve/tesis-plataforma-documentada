@@ -39,8 +39,8 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
 
   return (
     <Marker position={[news.latitud, news.longitud]} icon={icon}>
-      <Popup className="report-popup custom-news-popup md:min-w-[320px]">
-        <div className="w-72 sm:w-80 flex flex-col gap-3 p-1">
+      <Popup className="report-popup custom-news-popup">
+        <div className="w-60 sm:w-64 flex flex-col gap-1.5 p-0.5">
           {/* 1. Título y Badge Requirement 9 */}
           <div className="flex justify-between items-start gap-2">
             <h3 className="font-bold text-gray-900 text-lg leading-tight uppercase tracking-tight">
@@ -53,59 +53,57 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
           
           {/* 2. Imagen Grande Requirement 2 & 6 */}
           {news.imagen_url && (
-            <div className="w-full h-48 sm:h-[200px] relative rounded-xl overflow-hidden shadow-lg border border-gray-100">
+            <div className="w-full h-32 sm:h-36 relative rounded-lg overflow-hidden shadow-sm border border-gray-100">
               <img 
                 src={news.imagen_url} 
                 alt={news.titulo} 
-                className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                className="w-full h-full object-cover"
               />
             </div>
           )}
 
-          {/* 3. Descripción Requirement 4 & 5 */}
-          <div className="text-sm text-gray-700 bg-orange-50/30 p-3 rounded-lg border border-orange-100/50">
-            <p className="leading-relaxed">
+          <div className="text-xs text-gray-700 px-0.5">
+            <p className="leading-snug">
               {descripcionMostrar}
             </p>
           </div>
 
-          {/* Detalles Requirement 3 & 5 */}
-          <div className="text-xs text-gray-600 flex flex-col gap-2 mt-1 border-t border-gray-100 pt-3">
+          <div className="text-[11px] text-gray-600 flex flex-col gap-0.5 mt-0.5 border-t border-gray-50 pt-1.5">
             {hasValue(news.fecha_publicacion) && (
-              <p className="flex items-center gap-2">
-                <span className="font-bold text-gray-800 w-16">Fecha:</span> 
-                <span className="text-gray-600 font-medium">
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800 w-14">Fecha:</span> 
+                <span className="text-gray-600">
                   {format(new Date(news.fecha_publicacion), 'dd/MM/yyyy')}
                 </span>
               </p>
             )}
             
             {hasValue(news.ubicacion_texto) && (
-              <p className="flex items-start gap-2">
-                <span className="font-bold text-gray-800 w-16">Ubicación:</span> 
-                <span className="flex-1 text-gray-600">{news.ubicacion_texto}</span>
+              <p className="flex items-start gap-1">
+                <span className="font-bold text-gray-800 w-14">Ubicación:</span> 
+                <span className="flex-1 text-gray-600 leading-tight">{news.ubicacion_texto}</span>
               </p>
             )}
             
             {hasValue(news.tipo_evento) && (
-              <p className="flex items-center gap-2">
-                <span className="font-bold text-gray-800 w-16">Tipo:</span> 
-                <span className="capitalize text-gray-600 px-2 py-0.5 bg-gray-100 rounded">{news.tipo_evento}</span>
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800 w-14">Tipo:</span> 
+                <span className="capitalize text-gray-600">{news.tipo_evento}</span>
               </p>
             )}
             
             {hasValue(news.gravedad) && (
-              <p className="flex items-center gap-2">
-                <span className="font-bold text-gray-800 w-16">Gravedad:</span> 
-                <span className="capitalize font-bold px-2 py-0.5 rounded text-orange-700 bg-orange-100/50 border border-orange-200/50">
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800 w-14">Gravedad:</span> 
+                <span className="capitalize font-bold text-orange-700">
                   {news.gravedad}
                 </span>
               </p>
             )}
 
             {hasValue(news.fuente) && (
-              <p className="flex items-center gap-2">
-                <span className="font-bold text-gray-800 w-16">Fuente:</span> 
+              <p className="flex items-center gap-1">
+                <span className="font-bold text-gray-800 w-14">Fuente:</span> 
                 <span className="text-gray-500 italic truncate">{news.fuente}</span>
               </p>
             )}
@@ -118,7 +116,7 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
                 href={news.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-xs font-bold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 w-full text-center block py-2.5 rounded-lg shadow-sm hover:shadow-md uppercase tracking-wide"
+                className="text-[10px] font-bold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 w-full text-center block py-1.5 rounded shadow-sm hover:shadow-md uppercase tracking-wide"
               >
                 Ver Noticia Completa
               </a>
