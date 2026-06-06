@@ -68,34 +68,27 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             </p>
           </div>
 
-          <div className="text-[10px] text-gray-600 flex flex-col gap-0 border-t border-gray-50 pt-1">
+          <div className="text-[10px] text-gray-600 grid grid-cols-2 gap-x-2 gap-y-0 border-t border-gray-50 pt-1">
             {hasValue(news.fecha_publicacion) && (
               <p className="flex items-center gap-1">
                 <span className="font-bold text-gray-800">Fecha:</span> 
-                <span className="text-gray-600">
+                <span className="text-gray-600 truncate">
                   {format(new Date(news.fecha_publicacion), 'dd/MM/yyyy')}
                 </span>
-              </p>
-            )}
-            
-            {hasValue(news.ubicacion_texto) && (
-              <p className="flex items-start gap-1">
-                <span className="font-bold text-gray-800">Ubicación:</span> 
-                <span className="flex-1 text-gray-600 leading-tight">{news.ubicacion_texto}</span>
               </p>
             )}
             
             {hasValue(news.tipo_evento) && (
               <p className="flex items-center gap-1">
                 <span className="font-bold text-gray-800">Tipo:</span> 
-                <span className="capitalize text-gray-600">{news.tipo_evento}</span>
+                <span className="capitalize text-gray-600 truncate">{news.tipo_evento}</span>
               </p>
             )}
             
             {hasValue(news.gravedad) && (
               <p className="flex items-center gap-1">
                 <span className="font-bold text-gray-800">Gravedad:</span> 
-                <span className="capitalize font-bold text-orange-700">
+                <span className="capitalize font-bold text-orange-700 truncate">
                   {news.gravedad}
                 </span>
               </p>
@@ -105,6 +98,13 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
               <p className="flex items-center gap-1">
                 <span className="font-bold text-gray-800">Fuente:</span> 
                 <span className="text-gray-500 italic truncate">{news.fuente}</span>
+              </p>
+            )}
+
+            {hasValue(news.ubicacion_texto) && (
+              <p className="flex items-start gap-1 col-span-2 mt-0.5 border-t border-gray-50/50 pt-0.5">
+                <span className="font-bold text-gray-800 shrink-0">Ubicación:</span> 
+                <span className="flex-1 text-gray-600 leading-tight">{news.ubicacion_texto}</span>
               </p>
             )}
           </div>
