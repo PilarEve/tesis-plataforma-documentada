@@ -1,11 +1,57 @@
 "use client";
 
-import { useState } from 'react';
-import { Severity, Report } from '../types/report';
-import { MapPin, Camera, X, Loader2 } from 'lucide-react';
+import { useState, useEffect, useRef, useMemo } from 'react';
+import { Report } from '../types/report';
+import { MapPin, Camera, X, Loader2, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 
+const AVAILABLE_TAGS = [
+  'Calle inundada',
+  'Deslizamiento',
+  'Árbol caído',
+  'Vivienda afectada',
+  'Vehículo afectado',
+  'Persona atrapada',
+  'Fallecimiento reportado',
+  'Interrupción de tránsito',
+  'Servicio público afectado',
+  'Sin daños visibles'
+];
+import { MapContainer, TileLayer, Marker, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const defaultIcon = L.divIcon({
+  className: 'custom-leaflet-icon bg-transparent border-0',
+  html: `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#3b82f6" width="32" height="32" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+      <circle cx="12" cy="10" r="3" fill="white"></circle>
+    </svg>
+  `,
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+});
+
+function LocationSelector({ setLocation }: { setLocation: (lat: string, lng: string) => void }) {
+  useMapEvents({
+    click(e) {
+      setLocation(e.latlng.lat.toString(), e.latlng.lng.toString());
+    },
+  });
+  return null;
+}
+
+function MapUpdater({ lat, lng }: { lat: string; lng: string }) {
+  const map = useMap();
+  useEffect(() => {
+    if (lat && lng) {
+      map.flyTo([parseFloat(lat), parseFloat(lng)], map.getZoom() < 15 ? 15 : map.getZoom(), { animate: true });
+    }
+  }, [lat, lng, map]);
+  return null;
+}
 
 interface ReportFormProps {
   onClose: () => void;
@@ -15,8 +61,8 @@ interface ReportFormProps {
 export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
   const [lat, setLat] = useState<string>('');
   const [lng, setLng] = useState<string>('');
-  const [description, setDescription] = useState<string>('');
-  const [severity, setSeverity] = useState<Severity>('medio');
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
+  const [impactTags, setImpactTags] = useState<string[]>([]);
   const [imageUrl, setImageUrl] = useState<string>('');
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLocating, setIsLocating] = useState(false);
@@ -45,8 +91,14 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!lat || !lng || !description) {
-      alert("Por favor complete los campos obligatorios.");
+    if (!lat || !lng) {
+      alert("Seleccioná una ubicación en el mapa antes de enviar el reporte.");
+      return;
+    }
+    const description = descriptionRef.current?.value || '';
+    
+    if (!imageUrl && !imageFile) {
+      alert("Subí una foto del reporte antes de enviar.");
       return;
     }
 
@@ -79,7 +131,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         lat: parseFloat(lat),
         lng: parseFloat(lng),
         description,
-        severity,
+        impactTags,
         dateTime: new Date().toISOString(),
         imageUrl: finalImageUrl || undefined
       });
@@ -91,7 +143,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         lat: parseFloat(lat),
         lng: parseFloat(lng),
         description,
-        severity,
+        impactTags,
         dateTime: new Date().toISOString(),
         imageUrl: undefined
       });
@@ -118,25 +170,25 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
           <div className="space-y-3">
             <label className="text-sm font-bold text-slate-600">Ubicación <span className="text-red-500">*</span></label>
-            <div className="grid grid-cols-2 gap-3">
-              <input 
-                type="number" 
-                step="any"
-                placeholder="Latitud" 
-                value={lat} 
-                onChange={(e) => setLat(e.target.value)}
-                className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
-                required
-              />
-              <input 
-                type="number" 
-                step="any"
-                placeholder="Longitud" 
-                value={lng} 
-                onChange={(e) => setLng(e.target.value)}
-                className="w-full text-sm p-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
-                required
-              />
+            <p className="text-xs text-slate-500">Confirmá la ubicación del problema en el mapa. Podés mover el marcador tocando otro punto.</p>
+            <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-200 relative z-0">
+              {useMemo(() => (
+                <MapContainer 
+                  center={[-25.2855, -57.6150]} 
+                  zoom={13} 
+                  zoomControl={false}
+                  className="w-full h-full"
+                >
+                  <TileLayer
+                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                  />
+                  <LocationSelector setLocation={(l, lg) => { setLat(l); setLng(lg); }} />
+                  <MapUpdater lat={lat} lng={lng} />
+                  {lat && lng && (
+                    <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={defaultIcon} />
+                  )}
+                </MapContainer>
+              ), [lat, lng])}
             </div>
             <button 
               type="button" 
@@ -150,47 +202,55 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">Descripción del evento <span className="text-red-500">*</span></label>
+            <label className="text-sm font-bold text-slate-600">¿Qué afectaciones se observan?</label>
+            <p className="text-xs text-slate-500">Opcional. Podés seleccionar una o varias opciones.</p>
+            <div className="flex flex-wrap gap-2">
+              {AVAILABLE_TAGS.map((tag) => {
+                const isSelected = impactTags.includes(tag);
+                return (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      if (isSelected) {
+                        setImpactTags(prev => prev.filter(t => t !== tag));
+                      } else {
+                        setImpactTags(prev => [...prev, tag]);
+                      }
+                    }}
+                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
+                      isSelected 
+                        ? 'bg-blue-100 border-blue-500 text-blue-800' 
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    }`}
+                  >
+                    {tag}
+                  </button>
+                );
+              })}
+            </div>
+            {(impactTags.includes('Persona atrapada') || impactTags.includes('Fallecimiento reportado')) && (
+              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
+                <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
+                <p className="text-sm text-red-700 font-medium">
+                  Si hay personas en riesgo o una emergencia activa, contactá inmediatamente a los servicios de emergencia correspondientes.
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-3">
+            <label className="text-sm font-bold text-slate-600">Descripción del evento</label>
+            <p className="text-xs text-slate-500">Opcional. Podés agregar más detalles sobre la situación.</p>
             <textarea 
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              ref={descriptionRef}
               placeholder="Describa la situación de la inundación (ej: agua sobre la vereda, arroyo desbordado)..."
               className="w-full text-sm p-4 bg-slate-50 border border-slate-200 rounded-xl h-28 resize-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 focus:bg-white outline-none transition-all font-medium"
-              required
             />
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">Nivel de Severidad <span className="text-red-500">*</span></label>
-            <div className="grid grid-cols-4 gap-3">
-              {(['bajo', 'medio', 'alto', 'critico'] as Severity[]).map((sev) => (
-                <label 
-                  key={sev} 
-                  className={`flex flex-col items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                    severity === sev 
-                    ? (sev === 'bajo' ? 'border-green-500 bg-green-50 shadow-sm' : 
-                       sev === 'medio' ? 'border-yellow-400 bg-yellow-50 shadow-sm' : 
-                       sev === 'alto' ? 'border-orange-500 bg-orange-50 shadow-sm' : 
-                       'border-red-500 bg-red-50 shadow-sm')
-                    : 'border-slate-100 bg-white hover:bg-slate-50 hover:border-slate-200'
-                  }`}
-                  onClick={() => setSeverity(sev)}
-                >
-                  <span className={`w-4 h-4 rounded-full mb-2 shadow-inner ${
-                    sev === 'bajo' ? 'bg-green-500' :
-                    sev === 'medio' ? 'bg-yellow-400' :
-                    sev === 'alto' ? 'bg-orange-500' : 'bg-red-500'
-                  }`}></span>
-                  <span className={`text-xs font-bold capitalize ${severity === sev ? 'text-slate-800' : 'text-slate-500'}`}>
-                    {sev}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">Fotografía</label>
+            <label className="text-sm font-bold text-slate-600">Fotografía <span className="text-red-500">*</span></label>
             <div className="relative border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden bg-slate-50 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer group min-h-[150px] flex flex-col items-center justify-center">
               {imageUrl ? (
                 <div className="w-full h-48 relative">

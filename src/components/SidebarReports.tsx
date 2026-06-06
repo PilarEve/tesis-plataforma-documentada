@@ -30,15 +30,25 @@ export default function SidebarReports({ reports, onSelectReport }: SidebarRepor
             className="group bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-xl hover:border-blue-200 cursor-pointer transition-all duration-300 transform hover:-translate-y-1"
           >
             <div className="flex justify-between items-start mb-3">
-              <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-widest ${
-                report.severity === 'bajo' ? 'bg-green-100/80 text-green-700' :
-                report.severity === 'medio' ? 'bg-yellow-100/80 text-yellow-700' :
-                report.severity === 'alto' ? 'bg-orange-100/80 text-orange-700' : 
-                'bg-red-100/80 text-red-700'
-              }`}>
-                {report.severity}
-              </span>
-              <span className="text-xs flex items-center gap-1.5 text-slate-400 font-medium bg-slate-50 px-2 py-0.5 rounded-full">
+              <div className="flex flex-wrap gap-1 max-w-[70%]">
+                {report.impactTags && report.impactTags.length > 0 ? (
+                  report.impactTags.slice(0, 2).map(tag => (
+                    <span key={tag} className="bg-blue-50 text-blue-700 border border-blue-100 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider truncate">
+                      {tag}
+                    </span>
+                  ))
+                ) : (
+                  <span className="bg-slate-50 text-slate-500 border border-slate-200 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    Sin etiquetas
+                  </span>
+                )}
+                {report.impactTags && report.impactTags.length > 2 && (
+                  <span className="bg-slate-50 text-slate-500 text-[10px] font-bold px-1.5 py-1 rounded-full">
+                    +{report.impactTags.length - 2}
+                  </span>
+                )}
+              </div>
+              <span className="text-xs flex items-center gap-1.5 text-slate-400 font-medium bg-slate-50 px-2 py-0.5 rounded-full shrink-0">
                 {report.status === 'validado' ? <CheckCircle2 size={14} className="text-green-500"/> : <Clock size={14}/>}
                 <span className="capitalize">{report.status}</span>
               </span>
