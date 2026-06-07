@@ -56,7 +56,7 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             <div className="w-full h-24 sm:h-28 relative rounded overflow-hidden border border-gray-100">
               <Image 
                 src={news.imagen_url} 
-                alt={news.titulo} 
+                alt="Imagen asociada a noticia histórica de inundación" 
                 fill
                 className="object-cover"
                 sizes="(max-width: 640px) 224px, 240px"

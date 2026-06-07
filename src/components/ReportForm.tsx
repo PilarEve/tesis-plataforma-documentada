@@ -256,7 +256,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
                 <div className="w-full h-48 relative">
                   <Image 
                     src={imageUrl} 
-                    alt="Vista previa" 
+                    alt="Imagen enviada por ciudadano sobre evento reportado" 
                     fill
                     className="object-cover"
                     unoptimized={imageUrl.startsWith('blob:')}
