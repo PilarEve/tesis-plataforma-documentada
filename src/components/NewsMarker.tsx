@@ -47,8 +47,8 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             <h3 className="font-bold text-gray-900 text-sm leading-tight uppercase tracking-tight">
               {news.titulo}
             </h3>
-            <span className="bg-orange-100 text-orange-700 text-[9px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-wider whitespace-nowrap border border-orange-200">
-              Histórico
+            <span className="bg-orange-100 text-orange-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap border border-orange-200">
+              Noticia Histórica
             </span>
           </div>
           
@@ -64,16 +64,16 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             </div>
           )}
 
-          <div className="text-[11px] text-gray-700 px-0.5">
+          <div className="text-sm text-gray-700 px-0.5">
             <p className="leading-tight">
               {descripcionMostrar}
             </p>
           </div>
 
-          <div className="text-[10px] text-gray-600 grid grid-cols-2 gap-x-2 gap-y-0 border-t border-gray-50 pt-1">
+          <div className="text-xs text-gray-500 grid grid-cols-2 gap-x-2 gap-y-0 border-t border-gray-50 pt-1">
             {hasValue(news.fecha_publicacion) && (
               <p className="flex items-center gap-1">
-                <span className="font-bold text-gray-800">Fecha:</span> 
+                <span>Fecha:</span> 
                 <span className="text-gray-600 truncate">
                   {format(new Date(news.fecha_publicacion), 'dd/MM/yyyy')}
                 </span>
@@ -82,15 +82,15 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             
             {hasValue(news.tipo_evento) && (
               <p className="flex items-center gap-1">
-                <span className="font-bold text-gray-800">Tipo:</span> 
+                <span>Tipo:</span> 
                 <span className="capitalize text-gray-600 truncate">{news.tipo_evento}</span>
               </p>
             )}
             
             {hasValue(news.gravedad) && (
               <p className="flex items-center gap-1">
-                <span className="font-bold text-gray-800">Gravedad:</span> 
-                <span className="capitalize font-bold text-orange-700 truncate">
+                <span>Gravedad:</span> 
+                <span className="capitalize font-bold text-orange-600 truncate">
                   {news.gravedad}
                 </span>
               </p>
@@ -98,14 +98,14 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
 
             {hasValue(news.fuente) && (
               <p className="flex items-center gap-1">
-                <span className="font-bold text-gray-800">Fuente:</span> 
-                <span className="text-gray-500 italic truncate">{news.fuente}</span>
+                <span>Fuente:</span> 
+                <span className="text-gray-600 italic truncate">{news.fuente}</span>
               </p>
             )}
 
             {hasValue(news.ubicacion_texto) && (
               <p className="flex items-start gap-1 col-span-2 mt-0.5 border-t border-gray-50/50 pt-0.5">
-                <span className="font-bold text-gray-800 shrink-0">Ubicación:</span> 
+                <span className="shrink-0">Ubicación:</span> 
                 <span className="flex-1 text-gray-600 leading-tight">{news.ubicacion_texto}</span>
               </p>
             )}
@@ -118,7 +118,7 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
                 href={news.url} 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="text-[9px] font-bold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 w-full text-center block py-1 rounded shadow-sm uppercase tracking-wide"
+                className="text-[10px] font-extrabold text-white bg-orange-500 hover:bg-orange-600 transition-all duration-200 w-full text-center block py-1 rounded shadow-sm uppercase tracking-widest"
               >
                 Ver Noticia Completa
               </a>
