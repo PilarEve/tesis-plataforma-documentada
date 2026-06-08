@@ -42,15 +42,16 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
     <Marker position={[news.latitud, news.longitud]} icon={icon}>
       <Popup className="report-popup custom-news-popup">
         <div className="w-56 sm:w-60 flex flex-col gap-1 p-0.5">
-          {/* 1. Título y Badge Requirement 9 */}
-          <div className="flex justify-between items-start gap-2">
-            <h3 className="font-bold text-gray-900 text-sm leading-tight uppercase tracking-tight">
-              {news.titulo}
-            </h3>
+          {/* Badge aligned left, like Reporte Ciudadano */}
+          <div className="flex justify-between items-center gap-2">
             <span className="text-[10px] uppercase font-extrabold tracking-widest text-orange-700">
               NOTICIA HISTÓRICA
             </span>
           </div>
+          
+          <h3 className="font-bold text-gray-900 text-sm leading-tight uppercase tracking-tight mt-0.5">
+            {news.titulo}
+          </h3>
           
           {news.imagen_url && (
             <div className="w-full h-24 sm:h-28 relative rounded overflow-hidden border border-gray-100">
