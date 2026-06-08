@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Report } from '../types/report';
-import { MapPin, Camera, X, Loader2, AlertTriangle } from 'lucide-react';
+import { MapPin, Camera, X, Loader2, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 
@@ -67,6 +67,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAfectacionesOpen, setIsAfectacionesOpen] = useState(false);
 
   const handleGetLocation = () => {
     setIsLocating(true);
@@ -201,34 +202,55 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
             </button>
           </div>
 
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">¿Qué afectaciones se observan?</label>
-            <p className="text-xs text-slate-500">Opcional. Podés seleccionar una o varias opciones.</p>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_TAGS.map((tag) => {
-                const isSelected = impactTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => {
-                      if (isSelected) {
-                        setImpactTags(prev => prev.filter(t => t !== tag));
-                      } else {
-                        setImpactTags(prev => [...prev, tag]);
-                      }
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-                      isSelected 
-                        ? 'bg-blue-100 border-blue-500 text-blue-800' 
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+          <div className="space-y-3 border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
+            <div 
+              onClick={() => setIsAfectacionesOpen(!isAfectacionesOpen)}
+              className="flex items-center justify-between cursor-pointer select-none group"
+            >
+              <div>
+                <label className="text-sm font-bold text-slate-700 cursor-pointer group-hover:text-blue-600 transition-colors">
+                  ¿Qué afectaciones se observan?
+                </label>
+                {!isAfectacionesOpen && impactTags.length > 0 && (
+                  <p className="text-xs text-blue-600 font-semibold mt-0.5">
+                    {impactTags.length} {impactTags.length === 1 ? 'afectación seleccionada' : 'afectaciones seleccionadas'}
+                  </p>
+                )}
+              </div>
+              <div className="text-slate-400 bg-slate-100 group-hover:bg-slate-200 p-1.5 rounded-full transition-colors">
+                {isAfectacionesOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </div>
             </div>
+
+            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isAfectacionesOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <p className="text-xs text-slate-500 mb-3 pt-2">Opcional. Podés seleccionar una o varias opciones.</p>
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_TAGS.map((tag) => {
+                  const isSelected = impactTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setImpactTags(prev => prev.filter(t => t !== tag));
+                        } else {
+                          setImpactTags(prev => [...prev, tag]);
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border cursor-pointer ${
+                        isSelected 
+                          ? 'bg-blue-100 border-blue-500 text-blue-800' 
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {(impactTags.includes('Persona atrapada') || impactTags.includes('Fallecimiento reportado')) && (
               <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
                 <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
