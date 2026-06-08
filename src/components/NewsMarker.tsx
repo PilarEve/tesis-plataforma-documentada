@@ -47,8 +47,8 @@ export default function NewsMarker({ news }: NewsMarkerProps) {
             <h3 className="font-bold text-gray-900 text-sm leading-tight uppercase tracking-tight">
               {news.titulo}
             </h3>
-            <span className="bg-orange-100 text-orange-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap border border-orange-200">
-              Noticia Histórica
+            <span className="text-[10px] uppercase font-extrabold tracking-widest text-orange-700">
+              NOTICIA HISTÓRICA
             </span>
           </div>
           
