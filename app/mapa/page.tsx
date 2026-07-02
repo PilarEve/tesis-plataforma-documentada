@@ -1,4 +1,4 @@
-import MapClient from '../../src/components/MapClient';
+import MapClient from '@/components/MapClient';
 
 export const metadata = {
   title: 'Mapa de Inundaciones - Área Metropolitana de Asunción',

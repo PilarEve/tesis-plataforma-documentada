@@ -19,13 +19,9 @@ export default function HeatmapLayer({ reports, isVisible }: HeatmapLayerProps) 
 
     // Convertir reportes a formato [lat, lng, intensity] para leaflet.heat
     const points = reports.map(report => {
-      let intensity = 0.3;
-      switch (report.severity) {
-        case 'bajo': intensity = 0.3; break;
-        case 'medio': intensity = 0.5; break;
-        case 'alto': intensity = 0.8; break;
-        case 'critico': intensity = 1.0; break;
-      }
+      // Calculamos intensidad basándonos en la cantidad de afectaciones reportadas (máx 1.0)
+      const numTags = report.impactTags?.length || 0;
+      const intensity = Math.min(0.4 + (numTags * 0.15), 1.0);
       return [report.lat, report.lng, intensity] as L.HeatLatLngTuple;
     });
 
