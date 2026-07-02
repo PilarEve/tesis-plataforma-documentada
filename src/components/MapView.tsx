@@ -12,7 +12,7 @@ import FilterPanel from './FilterPanel';
 import SidebarReports from './SidebarReports';
 import HeatmapLayer from './HeatmapLayer';
 import ReportForm from './ReportForm';
-import { Plus, ListFilter, X, Loader2 } from 'lucide-react';
+import { Plus, ListFilter, X, Loader2, ChevronRight, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 
@@ -27,7 +27,24 @@ export default function MapView() {
   const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Para móviles
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
+  // Ajustar la visibilidad inicial según el ancho de la pantalla
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      setIsSidebarOpen(false);
+    }
+  }, []);
+
+  // Invalidar el tamaño del mapa de Leaflet cuando el sidebar se colapsa/despliega
+  useEffect(() => {
+    if (mapRef) {
+      const timer = setTimeout(() => {
+        mapRef.invalidateSize();
+      }, 350); // Ligeramente mayor que la transición del sidebar (300ms)
+      return () => clearTimeout(timer);
+    }
+  }, [isSidebarOpen, mapRef]);
 
   // Cargar reportes desde Supabase al montar el componente
   useEffect(() => {
@@ -221,17 +238,37 @@ export default function MapView() {
       {/* Sidebar de Lista de Reportes */}
       <div className={`
         fixed md:relative top-0 left-0 h-full z-[2000] md:z-10
-        transform transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
+        transform transition-all duration-300 ease-in-out
+        ${isSidebarOpen 
+          ? 'translate-x-0 w-80 md:w-96 opacity-100' 
+          : '-translate-x-full md:translate-x-0 md:w-0 md:opacity-0 md:overflow-hidden pointer-events-none'
+        }
       `}>
         <SidebarReports 
           reports={filteredReports} 
           onSelectReport={handleSelectReportFromSidebar} 
+          onCollapse={() => setIsSidebarOpen(false)}
         />
       </div>
 
       {/* Contenedor Principal del Mapa */}
       <div className="flex-1 relative h-full w-full">
+        {/* Botón flotante para abrir el sidebar (Solo visible en escritorio cuando está contraído) */}
+        {!isSidebarOpen && (
+          <button
+            onClick={() => setIsSidebarOpen(true)}
+            className="hidden md:flex absolute top-6 left-6 z-[1000] bg-white/95 backdrop-blur-md text-slate-800 font-bold py-3.5 px-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 border border-slate-200/50 cursor-pointer"
+            title="Mostrar reportes recientes"
+          >
+            <AlertTriangle className="text-blue-600 animate-pulse" size={18} />
+            <span className="text-sm font-semibold">Reportes Recientes</span>
+            <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full border border-blue-100">
+              {filteredReports.length}
+            </span>
+            <ChevronRight size={18} className="text-slate-400 ml-1" />
+          </button>
+        )}
+
         <FilterPanel 
           selectedTags={selectedTags}
           selectedStatus={selectedStatus}

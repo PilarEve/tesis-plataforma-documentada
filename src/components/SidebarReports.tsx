@@ -2,24 +2,36 @@
 
 import { Report } from '../types/report';
 import { format } from 'date-fns';
-import { MapPin, AlertTriangle, CheckCircle2, Clock } from 'lucide-react';
+import { MapPin, AlertTriangle, CheckCircle2, Clock, ChevronLeft, X } from 'lucide-react';
 
 interface SidebarReportsProps {
   reports: Report[];
   onSelectReport: (report: Report) => void;
+  onCollapse: () => void;
 }
 
-export default function SidebarReports({ reports, onSelectReport }: SidebarReportsProps) {
+export default function SidebarReports({ reports, onSelectReport, onCollapse }: SidebarReportsProps) {
   return (
     <div className="w-80 md:w-96 bg-white/95 backdrop-blur-md h-full border-r border-slate-200/50 flex flex-col shadow-[4px_0_24px_-4px_rgba(0,0,0,0.05)] z-[1000] relative">
-      <div className="p-6 border-b border-slate-100 bg-white/50 backdrop-blur-sm">
-        <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-          <AlertTriangle className="text-blue-600" size={22} />
-          Reportes Recientes
-        </h2>
-        <p className="text-sm text-slate-500 mt-1">
-          {reports.length} eventos registrados en Asunción
-        </p>
+      <div className="p-6 border-b border-slate-100 bg-white/50 backdrop-blur-sm flex items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+            <AlertTriangle className="text-blue-600" size={22} />
+            Reportes Recientes
+          </h2>
+          <p className="text-sm text-slate-500 mt-1">
+            {reports.length} eventos registrados en Asunción
+          </p>
+        </div>
+        <button
+          onClick={onCollapse}
+          className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-xl transition-colors cursor-pointer shrink-0"
+          title="Contraer panel"
+          aria-label="Contraer panel"
+        >
+          <ChevronLeft size={20} className="hidden md:block" />
+          <X size={20} className="md:hidden" />
+        </button>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">

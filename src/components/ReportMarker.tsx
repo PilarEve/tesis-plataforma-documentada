@@ -45,7 +45,7 @@ export default function ReportMarker({ report }: ReportMarkerProps) {
             <div className="w-full h-48 sm:h-[180px] relative rounded-xl overflow-hidden shadow-lg border border-gray-100">
               <Image 
                 src={report.imageUrl} 
-                alt="Imagen del reporte" 
+                alt="Imagen enviada por ciudadano sobre evento reportado" 
                 fill
                 className="object-cover transition-transform duration-300 hover:scale-105"
                 unoptimized

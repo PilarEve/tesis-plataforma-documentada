@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Report } from '../types/report';
-import { MapPin, Camera, X, Loader2, AlertTriangle } from 'lucide-react';
+import { MapPin, Camera, X, Loader2, AlertTriangle, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import Image from 'next/image';
 
@@ -67,6 +67,8 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isAfectacionesOpen, setIsAfectacionesOpen] = useState(false);
+  const [isMapOpen, setIsMapOpen] = useState(false);
 
   const handleGetLocation = () => {
     setIsLocating(true);
@@ -76,6 +78,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
           setLat(position.coords.latitude.toString());
           setLng(position.coords.longitude.toString());
           setIsLocating(false);
+          setIsMapOpen(true); // Desplegar mapa para confirmación visual
         },
         (error) => {
           console.error("Error al obtener ubicación", error);
@@ -168,67 +171,121 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         </div>
         
         <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">Ubicación <span className="text-red-500">*</span></label>
-            <p className="text-xs text-slate-500">Confirmá la ubicación del problema en el mapa. Podés mover el marcador tocando otro punto.</p>
-            <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-200 relative z-0">
-              {useMemo(() => (
-                <MapContainer 
-                  center={[-25.2855, -57.6150]} 
-                  zoom={13} 
-                  zoomControl={false}
-                  className="w-full h-full"
-                >
-                  <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-                  />
-                  <LocationSelector setLocation={(l, lg) => { setLat(l); setLng(lg); }} />
-                  <MapUpdater lat={lat} lng={lng} />
-                  {lat && lng && (
-                    <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={defaultIcon} />
-                  )}
-                </MapContainer>
-              ), [lat, lng])}
+          <div className="space-y-3 border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
+            <div className="flex justify-between items-start select-none">
+              <div>
+                <label className="text-sm font-bold text-slate-700">Ubicación <span className="text-red-500">*</span></label>
+                {lat && lng && !isMapOpen && (
+                  <p className="text-xs text-green-600 font-semibold mt-0.5 flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                    Ubicación seleccionada
+                  </p>
+                )}
+              </div>
             </div>
-            <button 
-              type="button" 
-              onClick={handleGetLocation}
-              disabled={isLocating}
-              className="w-full flex justify-center items-center gap-2 py-3 text-sm font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-blue-100"
-            >
-              <MapPin size={18} /> 
-              {isLocating ? 'Obteniendo coordenadas...' : 'Usar mi ubicación actual'}
-            </button>
+            
+            <p className="text-xs text-slate-500">
+              Confirmá la ubicación del problema. Podés obtenerla automáticamente o marcarla en el mapa.
+            </p>
+
+            <div className="flex flex-col gap-2 md:flex-row">
+              <button 
+                type="button" 
+                onClick={handleGetLocation}
+                disabled={isLocating}
+                className="flex-1 flex justify-center items-center gap-2 py-3 text-sm font-bold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-blue-100 cursor-pointer"
+              >
+                <MapPin size={18} /> 
+                {isLocating ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual'}
+              </button>
+
+              <button 
+                type="button"
+                onClick={() => setIsMapOpen(!isMapOpen)}
+                className={`flex-1 flex justify-center items-center gap-2 py-3 text-sm font-bold border rounded-xl transition-all cursor-pointer ${
+                  isMapOpen 
+                    ? 'bg-slate-100 border-slate-300 text-slate-700' 
+                    : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-600'
+                }`}
+              >
+                <span>Ubicar manualmente</span>
+                {isMapOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+            </div>
+
+            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isMapOpen ? 'max-h-[350px] opacity-100 mt-2' : 'max-h-0 opacity-0'}`}>
+              <p className="text-xs text-slate-500 mb-2 pt-2">Marcá la ubicación exacta del evento tocando o haciendo clic en el mapa.</p>
+              <div className="w-full h-56 rounded-xl overflow-hidden border border-slate-200 relative z-0">
+                {useMemo(() => (
+                  <MapContainer 
+                    center={[-25.2855, -57.6150]} 
+                    zoom={13} 
+                    zoomControl={false}
+                    className="w-full h-full"
+                  >
+                    <TileLayer
+                      url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
+                    />
+                    <LocationSelector setLocation={(l, lg) => { setLat(l); setLng(lg); }} />
+                    <MapUpdater lat={lat} lng={lng} />
+                    {lat && lng && (
+                      <Marker position={[parseFloat(lat), parseFloat(lng)]} icon={defaultIcon} />
+                    )}
+                  </MapContainer>
+                ), [lat, lng])}
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">¿Qué afectaciones se observan?</label>
-            <p className="text-xs text-slate-500">Opcional. Podés seleccionar una o varias opciones.</p>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_TAGS.map((tag) => {
-                const isSelected = impactTags.includes(tag);
-                return (
-                  <button
-                    key={tag}
-                    type="button"
-                    onClick={() => {
-                      if (isSelected) {
-                        setImpactTags(prev => prev.filter(t => t !== tag));
-                      } else {
-                        setImpactTags(prev => [...prev, tag]);
-                      }
-                    }}
-                    className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border ${
-                      isSelected 
-                        ? 'bg-blue-100 border-blue-500 text-blue-800' 
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                    }`}
-                  >
-                    {tag}
-                  </button>
-                );
-              })}
+          <div className="space-y-3 border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
+            <div 
+              onClick={() => setIsAfectacionesOpen(!isAfectacionesOpen)}
+              className="flex items-center justify-between cursor-pointer select-none group"
+            >
+              <div>
+                <label className="text-sm font-bold text-slate-700 cursor-pointer group-hover:text-blue-600 transition-colors">
+                  ¿Qué afectaciones se observan?
+                </label>
+                {!isAfectacionesOpen && impactTags.length > 0 && (
+                  <p className="text-xs text-blue-600 font-semibold mt-0.5">
+                    {impactTags.length} {impactTags.length === 1 ? 'afectación seleccionada' : 'afectaciones seleccionadas'}
+                  </p>
+                )}
+              </div>
+              <div className="text-slate-400 bg-slate-100 group-hover:bg-slate-200 p-1.5 rounded-full transition-colors">
+                {isAfectacionesOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </div>
             </div>
+
+            <div className={`transition-all duration-300 ease-in-out overflow-hidden ${isAfectacionesOpen ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
+              <p className="text-xs text-slate-500 mb-3 pt-2">Opcional. Podés seleccionar una o varias opciones.</p>
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_TAGS.map((tag) => {
+                  const isSelected = impactTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          setImpactTags(prev => prev.filter(t => t !== tag));
+                        } else {
+                          setImpactTags(prev => [...prev, tag]);
+                        }
+                      }}
+                      className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors border cursor-pointer ${
+                        isSelected 
+                          ? 'bg-blue-100 border-blue-500 text-blue-800' 
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {(impactTags.includes('Persona atrapada') || impactTags.includes('Fallecimiento reportado')) && (
               <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-3">
                 <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={18} />
@@ -256,7 +313,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
                 <div className="w-full h-48 relative">
                   <Image 
                     src={imageUrl} 
-                    alt="Vista previa" 
+                    alt="Imagen enviada por ciudadano sobre evento reportado" 
                     fill
                     className="object-cover"
                     unoptimized={imageUrl.startsWith('blob:')}
