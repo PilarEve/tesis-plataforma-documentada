@@ -22,8 +22,11 @@ export default function MapView() {
   const [reports, setReports] = useState<Report[]>([]); // Inicializamos vacío
   const [news, setNews] = useState<NoticiaHistorica[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showReports, setShowReports] = useState<boolean>(true);
+  const [showNews, setShowNews] = useState<boolean>(true);
+  const [selectedStatuses, setSelectedStatuses] = useState<string[]>(['pendiente', 'validado', 'rechazado']);
+  const [selectedDateRange, setSelectedDateRange] = useState<string>('todo');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedStatus, setSelectedStatus] = useState<string>('todos');
   const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
@@ -115,18 +118,67 @@ export default function MapView() {
   }, []);
 
   const filteredReports = useMemo(() => {
+    if (!showReports) return [];
     return reports.filter(report => {
+      // 1. Filtro por afectaciones (Tags)
       const matchTags = selectedTags.length === 0 || 
         (report.impactTags && report.impactTags.some(tag => selectedTags.includes(tag)));
-      const matchStatus = selectedStatus === 'todos' || report.status === selectedStatus;
-      return matchTags && matchStatus;
-    });
-  }, [reports, selectedTags, selectedStatus]);
 
-  const handleFilterChange = (tags: string[], status: string) => {
-    setSelectedTags(tags);
-    setSelectedStatus(status);
-  };
+      // 2. Filtro por estado del reporte
+      const matchStatus = selectedStatuses.includes(report.status);
+
+      // 3. Filtro por fecha
+      let matchDate = true;
+      if (selectedDateRange !== 'todo') {
+        const dateVal = report.dateTime ? new Date(report.dateTime) : null;
+        if (!dateVal || isNaN(dateVal.getTime())) {
+          matchDate = false;
+        } else {
+          const now = new Date();
+          if (selectedDateRange === 'hoy') {
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            matchDate = dateVal >= startOfToday;
+          } else if (selectedDateRange === '7dias') {
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            matchDate = dateVal >= sevenDaysAgo;
+          } else if (selectedDateRange === '30dias') {
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            matchDate = dateVal >= thirtyDaysAgo;
+          }
+        }
+      }
+
+      return matchTags && matchStatus && matchDate;
+    });
+  }, [reports, showReports, selectedTags, selectedStatuses, selectedDateRange]);
+
+  const filteredNews = useMemo(() => {
+    if (!showNews) return [];
+    return news.filter(item => {
+      let matchDate = true;
+      if (selectedDateRange !== 'todo') {
+        const dateVal = item.fecha_publicacion ? new Date(item.fecha_publicacion) : null;
+        if (!dateVal || isNaN(dateVal.getTime())) {
+          matchDate = false;
+        } else {
+          const now = new Date();
+          if (selectedDateRange === 'hoy') {
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            matchDate = dateVal >= startOfToday;
+          } else if (selectedDateRange === '7dias') {
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            matchDate = dateVal >= sevenDaysAgo;
+          } else if (selectedDateRange === '30dias') {
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            matchDate = dateVal >= thirtyDaysAgo;
+          }
+        }
+      }
+      return matchDate;
+    });
+  }, [news, showNews, selectedDateRange]);
 
   const handleAddReport = async (newReportData: Omit<Report, 'id' | 'status'>) => {
     try {
@@ -270,9 +322,16 @@ export default function MapView() {
         )}
 
         <FilterPanel 
+          showReports={showReports}
+          onShowReportsChange={setShowReports}
+          showNews={showNews}
+          onShowNewsChange={setShowNews}
+          selectedStatuses={selectedStatuses}
+          onStatusesChange={setSelectedStatuses}
+          selectedDateRange={selectedDateRange}
+          onDateRangeChange={setSelectedDateRange}
           selectedTags={selectedTags}
-          selectedStatus={selectedStatus}
-          onFilterChange={handleFilterChange}
+          onTagsChange={setSelectedTags}
           isHeatmapVisible={isHeatmapVisible}
           onToggleHeatmap={setIsHeatmapVisible}
         />
@@ -294,7 +353,7 @@ export default function MapView() {
             <ReportMarker key={report.id} report={report} />
           ))}
 
-          {!isHeatmapVisible && news.map(noticia => (
+          {!isHeatmapVisible && filteredNews.map(noticia => (
             <NewsMarker key={`news-${noticia.id}`} news={noticia} />
           ))}
 
