@@ -14,6 +14,8 @@ import HeatmapLayer from './HeatmapLayer';
 import ReportForm from './ReportForm';
 import { Plus, ListFilter, X, Loader2, ChevronRight, AlertTriangle } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import SearchBar from './SearchBar';
+import CustomZoomControl from './CustomZoomControl';
 
 
 const ASUNCION_CENTER: [number, number] = [-25.2855, -57.6150];
@@ -253,12 +255,36 @@ export default function MapView() {
     }
   };
 
+  const handleSelectLocation = (lat: number, lon: number) => {
+    if (mapRef) {
+      mapRef.flyTo([lat, lon], 16, {
+        animate: true,
+        duration: 1.5
+      });
+    }
+  };
+
+  const handleZoomIn = () => {
+    if (mapRef) {
+      mapRef.zoomIn();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (mapRef) {
+      mapRef.zoomOut();
+    }
+  };
+
   return (
     <div className="flex w-full h-screen bg-slate-50 overflow-hidden relative font-sans text-slate-800">
       
       {/* Botones Flotantes Inferiores Derechos */}
       <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-[1000] flex flex-col gap-3 md:gap-4 items-end">
         
+        {/* Control de Zoom Personalizado */}
+        <CustomZoomControl onZoomIn={handleZoomIn} onZoomOut={handleZoomOut} />
+
         {/* Botón Ver Reportes (Solo Móvil) */}
         <button 
           onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -320,6 +346,14 @@ export default function MapView() {
             <ChevronRight size={18} className="text-slate-400 ml-1" />
           </button>
         )}
+
+        {/* Barra de Búsqueda de Ubicación */}
+        <SearchBar 
+          onSelectLocation={handleSelectLocation}
+          className={`absolute top-20 md:top-6 left-4 right-4 md:right-auto md:w-80 lg:w-96 z-[1000] transition-all duration-300
+            ${!isSidebarOpen ? 'md:left-[240px]' : 'md:left-6'}
+          `}
+        />
 
         <FilterPanel 
           showReports={showReports}
