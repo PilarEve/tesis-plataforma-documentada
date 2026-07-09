@@ -29,6 +29,7 @@ interface FilterPanelProps {
   onTagsChange: (tags: string[]) => void;
   isHeatmapVisible: boolean;
   onToggleHeatmap: (isVisible: boolean) => void;
+  className?: string;
 }
 
 export default function FilterPanel({
@@ -43,7 +44,8 @@ export default function FilterPanel({
   selectedTags,
   onTagsChange,
   isHeatmapVisible,
-  onToggleHeatmap
+  onToggleHeatmap,
+  className = ''
 }: FilterPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
@@ -91,7 +93,7 @@ export default function FilterPanel({
   ];
 
   return (
-    <div className={`absolute top-4 right-4 md:top-6 md:right-6 z-[1000] bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] w-[calc(100vw-2rem)] md:w-80 border border-slate-200/50 transition-all duration-300 overflow-hidden ${isExpanded ? 'rounded-2xl' : 'rounded-full'}`}>
+    <div className={`absolute z-[1000] bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.12)] w-[calc(100vw-2rem)] md:w-80 border border-slate-200/50 transition-all duration-300 overflow-hidden ${isExpanded ? 'rounded-2xl' : 'rounded-full'} ${className}`}>
       
       {/* Header / Toggle Button */}
       <button 

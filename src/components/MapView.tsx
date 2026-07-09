@@ -41,6 +41,28 @@ export default function MapView() {
     }
   }, []);
 
+  // Evitar scroll en el body y html de la página
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
+    const originalBodyOverflow = document.body.style.overflow;
+    const originalBodyHeight = document.body.style.height;
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalHtmlHeight = document.documentElement.style.height;
+
+    document.body.style.overflow = 'hidden';
+    document.body.style.height = '100vh';
+    document.documentElement.style.overflow = 'hidden';
+    document.documentElement.style.height = '100vh';
+
+    return () => {
+      document.body.style.overflow = originalBodyOverflow;
+      document.body.style.height = originalBodyHeight;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      document.documentElement.style.height = originalHtmlHeight;
+    };
+  }, []);
+
   // Invalidar el tamaño del mapa de Leaflet cuando el sidebar se colapsa/despliega
   useEffect(() => {
     if (mapRef) {
@@ -330,28 +352,39 @@ export default function MapView() {
       </div>
 
       {/* Contenedor Principal del Mapa */}
-      <div className="flex-1 relative h-full w-full">
-        {/* Botón flotante para abrir el sidebar (Solo visible en escritorio cuando está contraído) */}
-        {!isSidebarOpen && (
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="hidden md:flex absolute top-6 left-6 z-[1000] bg-white/95 backdrop-blur-md text-slate-800 font-bold py-3.5 px-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 border border-slate-200/50 cursor-pointer"
-            title="Mostrar reportes recientes"
-          >
-            <AlertTriangle className="text-blue-600 animate-pulse" size={18} />
-            <span className="text-sm font-semibold">Reportes Recientes</span>
-            <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full border border-blue-100">
+      <div className="flex-1 relative h-screen h-[100vh] w-full overflow-hidden">
+        {/* Botón flotante para abrir el sidebar */}
+        <button
+          onClick={() => setIsSidebarOpen(true)}
+          className={`absolute z-[1000] bg-white/95 backdrop-blur-md text-slate-800 font-bold py-3 px-4 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-between md:justify-start gap-2 border border-slate-200/50 cursor-pointer transition-all duration-300
+            ${isSidebarOpen 
+              ? 'opacity-0 pointer-events-none -translate-y-4 md:-translate-x-4 md:translate-y-0 scale-95' 
+              : 'opacity-100 pointer-events-auto translate-y-0 translate-x-0 scale-100'
+            }
+            top-4 left-4 right-4 md:right-auto md:w-auto
+          `}
+          title="Mostrar reportes recientes"
+        >
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="text-blue-600 animate-pulse shrink-0" size={18} />
+            <span className="text-sm font-semibold truncate">Reportes Recientes</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full border border-blue-100 shrink-0">
               {filteredReports.length}
             </span>
-            <ChevronRight size={18} className="text-slate-400 ml-1" />
-          </button>
-        )}
+            <ChevronRight size={18} className="text-slate-400 hidden md:inline" />
+          </div>
+        </button>
 
         {/* Barra de Búsqueda de Ubicación */}
         <SearchBar 
           onSelectLocation={handleSelectLocation}
-          className={`absolute top-20 md:top-6 left-4 right-4 md:right-auto md:w-80 lg:w-96 z-[1000] transition-all duration-300
-            ${!isSidebarOpen ? 'md:left-[240px]' : 'md:left-6'}
+          className={`absolute left-4 right-4 md:right-auto md:w-80 lg:w-96 z-[1000] transition-all duration-300
+            ${isSidebarOpen 
+              ? 'top-4 md:left-4' 
+              : 'top-[68px] md:top-4 md:left-[240px]'
+            }
           `}
         />
 
@@ -368,6 +401,12 @@ export default function MapView() {
           onTagsChange={setSelectedTags}
           isHeatmapVisible={isHeatmapVisible}
           onToggleHeatmap={setIsHeatmapVisible}
+          className={`transition-all duration-300 right-4 md:right-4 md:top-4
+            ${isSidebarOpen 
+              ? 'top-[68px]' 
+              : 'top-[132px]'
+            }
+          `}
         />
 
         <MapContainer 
@@ -375,6 +414,7 @@ export default function MapView() {
           zoom={13} 
           zoomControl={false}
           className="w-full h-full z-0"
+          style={{ height: '100%', width: '100%' }}
           ref={setMapRef}
         >
           {/* Mapa Base: CartoDB Positron */}
