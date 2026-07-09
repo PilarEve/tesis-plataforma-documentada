@@ -51,15 +51,49 @@ export default function MapView() {
     const originalHtmlHeight = document.documentElement.style.height;
 
     document.body.style.overflow = 'hidden';
-    document.body.style.height = '100vh';
+    document.body.style.height = '100%';
     document.documentElement.style.overflow = 'hidden';
-    document.documentElement.style.height = '100vh';
+    document.documentElement.style.height = '100%';
+
+    const handleScroll = () => {
+      if (window.scrollY !== 0 || window.scrollX !== 0) {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    const preventContainerScroll = (e: Event) => {
+      const target = e.target as HTMLElement;
+      if (!target || !target.tagName) return;
+
+      // Permitir scroll en áreas correspondientes (sidebar, filtros, formularios, etc.)
+      if (
+        target.closest('.sidebar-scrollable') || 
+        target.closest('.filter-scrollable') || 
+        target.closest('.form-scrollable') ||
+        target.tagName === 'TEXTAREA' || 
+        target.tagName === 'INPUT'
+      ) {
+        return;
+      }
+
+      if (target.scrollTop !== 0) {
+        target.scrollTop = 0;
+      }
+      if (target.scrollLeft !== 0) {
+        target.scrollLeft = 0;
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: false });
+    window.addEventListener('scroll', preventContainerScroll, { capture: true, passive: true });
 
     return () => {
       document.body.style.overflow = originalBodyOverflow;
       document.body.style.height = originalBodyHeight;
       document.documentElement.style.overflow = originalHtmlOverflow;
       document.documentElement.style.height = originalHtmlHeight;
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', preventContainerScroll, { capture: true });
     };
   }, []);
 
@@ -352,7 +386,7 @@ export default function MapView() {
       </div>
 
       {/* Contenedor Principal del Mapa */}
-      <div className="flex-1 relative h-screen h-[100vh] w-full overflow-hidden">
+      <div className="flex-1 min-w-0 relative h-full overflow-hidden">
         {/* Botón flotante para abrir el sidebar */}
         <button
           onClick={() => setIsSidebarOpen(true)}

@@ -112,7 +112,7 @@ export default function FilterPanel({
       </button>
 
       {/* Collapsible Content */}
-      <div className={`transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[calc(100vh-140px)] overflow-y-auto opacity-100 px-5 pb-5' : 'max-h-0 opacity-0 px-5 pb-0'}`}>
+      <div className={`filter-scrollable transition-all duration-300 ease-in-out ${isExpanded ? 'max-h-[calc(100vh-140px)] overflow-y-auto opacity-100 px-5 pb-5' : 'max-h-0 opacity-0 px-5 pb-0'}`}>
         <div className="border-t border-slate-200/60 pt-3 flex flex-col gap-1">
           
           {/* A) Datos */}
