@@ -417,7 +417,7 @@ export default function MapView() {
           className={`absolute left-4 right-4 md:right-auto md:w-80 lg:w-96 z-[1000] transition-all duration-300
             ${isSidebarOpen 
               ? 'top-4 md:left-4' 
-              : 'top-[68px] md:top-4 md:left-[240px]'
+              : 'top-[68px] md:top-4 md:left-[290px]'
             }
           `}
         />
