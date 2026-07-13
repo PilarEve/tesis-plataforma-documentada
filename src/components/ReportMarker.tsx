@@ -40,16 +40,23 @@ export default function ReportMarker({ report }: ReportMarkerProps) {
             <span className="text-[10px] uppercase font-extrabold tracking-widest text-gray-500">Reporte Ciudadano</span>
           </div>
 
-          {/* Image */}
+          {/* Media Evidence */}
           {report.imageUrl && (
-            <div className="w-full h-48 sm:h-[180px] relative rounded-xl overflow-hidden shadow-lg border border-gray-100">
-              <Image 
-                src={report.imageUrl} 
-                alt="Imagen enviada por ciudadano sobre evento reportado" 
-                fill
-                className="object-cover transition-transform duration-300 hover:scale-105"
-                unoptimized
-              />
+            <div className="w-full h-48 sm:h-[180px] relative rounded-xl overflow-hidden shadow-lg border border-gray-100 bg-black flex items-center justify-center">
+              {report.archivoTipo === 'video' ? (
+                <video
+                  src={report.imageUrl}
+                  controls
+                  preload="metadata"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img 
+                  src={report.imageUrl} 
+                  alt="Evidencia enviada por ciudadano" 
+                  className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+                />
+              )}
             </div>
           )}
           <div>
