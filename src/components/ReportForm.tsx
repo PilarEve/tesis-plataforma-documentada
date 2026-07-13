@@ -231,7 +231,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         const filePath = `${folder}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
-          .from('evidencias-reportes')
+          .from('reportes')
           .upload(filePath, imageFile, {
             contentType: imageFile.type,
             upsert: false
@@ -242,7 +242,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
         }
 
         const { data: { publicUrl } } = supabase.storage
-          .from('evidencias-reportes')
+          .from('reportes')
           .getPublicUrl(filePath);
 
         finalImageUrl = publicUrl;
