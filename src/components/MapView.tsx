@@ -20,6 +20,21 @@ import CustomZoomControl from './CustomZoomControl';
 
 const ASUNCION_CENTER: [number, number] = [-25.2855, -57.6150];
 
+const BASE_MAPS = {
+  voyager: {
+    url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  },
+  light: {
+    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+  },
+  satellite: {
+    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+  }
+};
+
 export default function MapView() {
   const [reports, setReports] = useState<Report[]>([]); // Inicializamos vacío
   const [news, setNews] = useState<NoticiaHistorica[]>([]);
@@ -33,6 +48,7 @@ export default function MapView() {
   const [showReportForm, setShowReportForm] = useState(false);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [activeBaseMap, setActiveBaseMap] = useState<'voyager' | 'light' | 'satellite'>('voyager');
 
   // Ajustar la visibilidad inicial según el ancho de la pantalla
   useEffect(() => {
@@ -435,6 +451,8 @@ export default function MapView() {
           onTagsChange={setSelectedTags}
           isHeatmapVisible={isHeatmapVisible}
           onToggleHeatmap={setIsHeatmapVisible}
+          activeBaseMap={activeBaseMap}
+          onChangeBaseMap={setActiveBaseMap}
           className={`transition-all duration-300 right-4 md:right-4 md:top-4
             ${isSidebarOpen 
               ? 'top-[68px]' 
@@ -451,10 +469,10 @@ export default function MapView() {
           style={{ height: '100%', width: '100%' }}
           ref={setMapRef}
         >
-          {/* Mapa Base: CartoDB Positron */}
+          {/* Mapa Base Dinámico */}
           <TileLayer
-            url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
-            attribution='&copy; OpenStreetMap contributors &copy; CARTO'
+            url={BASE_MAPS[activeBaseMap].url}
+            attribution={BASE_MAPS[activeBaseMap].attribution}
           />
 
           {!isHeatmapVisible && filteredReports.map(report => (

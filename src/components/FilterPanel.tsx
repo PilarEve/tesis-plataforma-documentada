@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Layers, Database, Activity, Calendar, Filter, Sliders, ChevronDown, ChevronUp } from 'lucide-react';
+import { Layers, Database, Activity, Calendar, Filter, Sliders, ChevronDown, ChevronUp, Map } from 'lucide-react';
 
 const AVAILABLE_TAGS = [
   'Calle inundada',
@@ -29,6 +29,8 @@ interface FilterPanelProps {
   onTagsChange: (tags: string[]) => void;
   isHeatmapVisible: boolean;
   onToggleHeatmap: (isVisible: boolean) => void;
+  activeBaseMap: 'voyager' | 'light' | 'satellite';
+  onChangeBaseMap: (baseMap: 'voyager' | 'light' | 'satellite') => void;
   className?: string;
 }
 
@@ -45,11 +47,14 @@ export default function FilterPanel({
   onTagsChange,
   isHeatmapVisible,
   onToggleHeatmap,
+  activeBaseMap,
+  onChangeBaseMap,
   className = ''
 }: FilterPanelProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     datos: true,
+    mapaBase: true,
     estado: true,
     fecha: false,
     afectaciones: false,
@@ -161,7 +166,53 @@ export default function FilterPanel({
 
           <div className="border-b border-slate-100/80 my-1" />
 
-          {/* B) Estado */}
+          {/* B) Mapa base */}
+          <div className="py-1.5">
+            <button
+              type="button"
+              onClick={() => toggleSection('mapaBase')}
+              className="w-full flex items-center justify-between py-1 text-slate-700 hover:text-slate-900 transition-colors font-bold text-xs uppercase tracking-wider"
+            >
+              <div className="flex items-center gap-2">
+                <Map size={14} className="text-slate-400" />
+                <span>Mapa base</span>
+              </div>
+              <ChevronDown 
+                size={14} 
+                className={`text-slate-400 transition-transform duration-200 ${expandedSections.mapaBase ? 'rotate-180' : ''}`} 
+              />
+            </button>
+            <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedSections.mapaBase ? 'max-h-32 opacity-100 mt-2.5 pl-6' : 'max-h-0 opacity-0'}`}>
+              <div className="flex flex-col gap-2.5 pb-1">
+                {(['voyager', 'light', 'satellite'] as const).map((mode) => {
+                  const labels = {
+                    voyager: 'Carto Voyager',
+                    light: 'Carto Light',
+                    satellite: 'Satélite'
+                  };
+                  return (
+                    <label key={mode} className="flex items-center gap-3 cursor-pointer group w-fit">
+                      <input 
+                        type="radio" 
+                        name="baseMap"
+                        value={mode}
+                        checked={activeBaseMap === mode}
+                        onChange={() => onChangeBaseMap(mode)}
+                        className="w-4 h-4 rounded-full border-slate-300 text-blue-600 focus:ring-blue-500/30 transition-shadow cursor-pointer"
+                      />
+                      <span className="text-sm text-slate-600 font-medium group-hover:text-slate-900 transition-colors">
+                        {labels[mode]}
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          <div className="border-b border-slate-100/80 my-1" />
+
+          {/* C) Estado */}
           <div className="py-1.5">
             <button
               type="button"
@@ -218,7 +269,7 @@ export default function FilterPanel({
 
           <div className="border-b border-slate-100/80 my-1" />
 
-          {/* C) Fecha */}
+          {/* D) Fecha */}
           <div className="py-1.5">
             <button
               type="button"
@@ -256,7 +307,7 @@ export default function FilterPanel({
 
           <div className="border-b border-slate-100/80 my-1" />
 
-          {/* D) Afectaciones */}
+          {/* E) Afectaciones */}
           <div className="py-1.5">
             <button
               type="button"
@@ -293,7 +344,7 @@ export default function FilterPanel({
 
           <div className="border-b border-slate-100/80 my-1" />
 
-          {/* E) Opciones */}
+          {/* F) Opciones */}
           <div className="py-1.5">
             <button
               type="button"
