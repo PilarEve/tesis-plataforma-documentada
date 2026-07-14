@@ -143,7 +143,7 @@ export default function MapView() {
   };
 
   return (
-    <div className="flex w-full h-screen bg-slate-50 overflow-hidden relative font-sans text-slate-800">
+    <div className="flex w-full h-full bg-slate-50 overflow-hidden relative font-sans text-slate-800">
       
       {/* Botones Flotantes Inferiores Derechos */}
       <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-[1000] flex flex-col gap-3 md:gap-4 items-end">
