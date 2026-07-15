@@ -17,5 +17,9 @@ const MapView = dynamic(() => import('./MapView'), {
 });
 
 export default function MapClient() {
-  return <MapView />;
+  return (
+    <div className="h-full w-full min-h-0">
+      <MapView />
+    </div>
+  );
 }

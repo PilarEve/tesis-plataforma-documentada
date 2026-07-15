@@ -134,7 +134,7 @@ export default function Navigation() {
       <div
         id="mobile-menu"
         ref={menuRef}
-        className={`fixed top-16 right-0 w-72 h-[calc(100vh-4rem)] bg-white shadow-2xl border-l border-slate-100 z-[3995] md:hidden transform transition-transform duration-300 ease-out flex flex-col justify-between ${
+        className={`fixed top-16 right-0 w-72 h-[calc(100dvh-4rem)] bg-white shadow-2xl border-l border-slate-100 z-[3995] md:hidden transform transition-transform duration-300 ease-out flex flex-col justify-between ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
         role="dialog"

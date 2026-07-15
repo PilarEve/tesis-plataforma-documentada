@@ -289,9 +289,10 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
       setFileType(null);
 
       onSubmit(mappedNewReport);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Error al enviar el reporte:', error);
-      alert(error.message || "Ocurrió un error al enviar el reporte. Por favor, intentá nuevamente.");
+      const msg = error instanceof Error ? error.message : 'Ocurrió un error al enviar el reporte. Por favor, intentá nuevamente.';
+      alert(msg);
     } finally {
       setIsSubmitting(false);
     }

@@ -27,14 +27,12 @@ export default function MapView() {
   const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  // Ajustar la visibilidad inicial según el ancho de la pantalla
-  useEffect(() => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setIsSidebarOpen(false);
+      return false;
     }
-  }, []);
+    return true;
+  });
 
   // Invalidar el tamaño del mapa de Leaflet cuando el sidebar se colapsa/despliega
   useEffect(() => {
@@ -143,7 +141,7 @@ export default function MapView() {
   };
 
   return (
-    <div className="flex w-full h-full bg-slate-50 overflow-hidden relative font-sans text-slate-800">
+    <div className="flex w-full h-full min-h-0 bg-slate-50 overflow-hidden relative font-sans text-slate-800">
       
       {/* Botones Flotantes Inferiores Derechos */}
       <div className="absolute bottom-24 right-4 md:bottom-8 md:right-8 z-[1000] flex flex-col gap-3 md:gap-4 items-end">
@@ -193,7 +191,7 @@ export default function MapView() {
       </div>
 
       {/* Contenedor Principal del Mapa */}
-      <div className="flex-1 relative h-full w-full">
+      <div className="flex-1 relative h-full w-full min-h-0">
         {/* Botón flotante para abrir el sidebar (Solo visible en escritorio cuando está contraído) */}
         {!isSidebarOpen && (
           <button
