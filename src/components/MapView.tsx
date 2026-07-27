@@ -330,12 +330,29 @@ export default function MapView(): JSX.Element {
     setReports(prev => [newReport, ...prev]);
     setShowReportForm(false);
     if (mapRef) mapRef.setView([newReport.lat, newReport.lng], 15);
+      if (error) throw error;
+      
+      const newReport: Report = {
+        ...newReportData,
+        id: data.id,
+        status: 'pendiente',
+        dateTime: data.creado_en
+      };
+      
+      setReports(prev => [newReport, ...prev]);
+      setShowReportForm(false);
+    } catch (err) {
+      console.error('Error adding report:', err);
+    }
   };
+
+  const handleZoomIn = () => mapRef?.zoomIn();
+  const handleZoomOut = () => mapRef?.zoomOut();
 
   const handleSelectReportFromSidebar = (report: Report) => {
     if (mapRef) {
       mapRef.setView([report.lat, report.lng], 16);
-      if (window.innerWidth < 768) setIsSidebarOpen(false); // Cierra sidebar en móvil
+      if (window.innerWidth < 768) setIsSidebarOpen(false);
     }
   };
 
@@ -343,6 +360,10 @@ export default function MapView(): JSX.Element {
     if (mapRef) {
       mapRef.flyTo([lat, lon], 16, {
         animate: true,
+      });
+    }
+  };
+
     <div className="flex w-full h-full min-h-0 bg-slate-50 overflow-hidden relative font-sans text-slate-800">
       
       {/* Botones Flotantes Inferiores Derechos */}
