@@ -35,7 +35,7 @@ const BASE_MAPS = {
   }
 };
 
-export default function MapView() {
+export default function MapView(): JSX.Element {
   const [reports, setReports] = useState<Report[]>([]); // Inicializamos vacío
   const [news, setNews] = useState<NoticiaHistorica[]>([]);
   const [loading, setLoading] = useState(true);
@@ -272,24 +272,6 @@ export default function MapView() {
     if (mapRef) {
       mapRef.flyTo([lat, lon], 16, {
         animate: true,
-        duration: 1.5
-      });
-    }
-  };
-
-  const handleZoomIn = () => {
-    if (mapRef) {
-      mapRef.zoomIn();
-    }
-  };
-
-  const handleZoomOut = () => {
-    if (mapRef) {
-      mapRef.zoomOut();
-    }
-  };
-
-  return (
     <div className="flex w-full h-full min-h-0 bg-slate-50 overflow-hidden relative font-sans text-slate-800">
       
       {/* Botones Flotantes Inferiores Derechos */}
@@ -343,17 +325,6 @@ export default function MapView() {
       </div>
 
       {/* Contenedor Principal del Mapa */}
-      <div className="flex-1 relative h-full w-full min-h-0">
-        {/* Botón flotante para abrir el sidebar (Solo visible en escritorio cuando está contraído) */}
-        {!isSidebarOpen && (
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="hidden md:flex absolute top-6 left-6 z-[1000] bg-white/95 backdrop-blur-md text-slate-800 font-bold py-3.5 px-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 border border-slate-200/50 cursor-pointer"
-            title="Mostrar reportes recientes"
-          >
-            <AlertTriangle className="text-blue-600 animate-pulse" size={18} />
-            <span className="text-sm font-semibold">Reportes Recientes</span>
-            <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full border border-blue-100">
       <div className="flex-1 min-w-0 relative h-full overflow-hidden">
         {/* Botón flotante para abrir el sidebar */}
         <button
