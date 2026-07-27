@@ -134,7 +134,12 @@ export default function MapView() {
           .order('creado_en', { ascending: false });
 
         if (error) {
-          console.error('Error fetching reports:', error);
+          console.error('Error fetching reports:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+          });
           setReports(mockReports);
         } else if (data) {
           // Mapeamos los datos de la DB a nuestro formato de Report
@@ -157,7 +162,12 @@ export default function MapView() {
           .order('fecha_publicacion', { ascending: false });
 
         if (newsError) {
-          console.error('Error fetching news:', newsError);
+          console.error('Error fetching news:', {
+            message: newsError.message,
+            code: newsError.code,
+            details: newsError.details,
+            hint: newsError.hint
+          });
         } else if (newsData) {
           const validNews = newsData
             .filter(n => 
