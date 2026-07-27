@@ -48,7 +48,7 @@ export default function MapView() {
   const [showReportForm, setShowReportForm] = useState(false);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [activeBaseMap, setActiveBaseMap] = useState<'voyager' | 'light' | 'satellite'>('voyager');
+  const [activeBaseMap, setActiveBaseMap] = useState<'voyager' | 'light' | 'satellite'>('light');
 
   // Ajustar la visibilidad inicial según el ancho de la pantalla
   useEffect(() => {

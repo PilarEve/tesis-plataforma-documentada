@@ -184,10 +184,10 @@ export default function FilterPanel({
             </button>
             <div className={`overflow-hidden transition-all duration-300 ease-in-out ${expandedSections.mapaBase ? 'max-h-32 opacity-100 mt-2.5 pl-6' : 'max-h-0 opacity-0'}`}>
               <div className="flex flex-col gap-2.5 pb-1">
-                {(['voyager', 'light', 'satellite'] as const).map((mode) => {
+                {(['light', 'voyager', 'satellite'] as const).map((mode) => {
                   const labels = {
-                    voyager: 'Carto Voyager',
-                    light: 'Carto Light',
+                    light: 'Mapa',
+                    voyager: 'Calles',
                     satellite: 'Satélite'
                   };
                   return (
