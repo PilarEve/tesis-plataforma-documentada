@@ -47,17 +47,15 @@ export default function MapView() {
   const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeBaseMap, setActiveBaseMap] = useState<'voyager' | 'light' | 'satellite'>('light');
 
   // Ajustar la visibilidad inicial según el ancho de la pantalla
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return false;
+      setIsSidebarOpen(false);
     }
-    return true;
-  });
+  }, []);
 
   // Evitar scroll en el body y html de la página
   useEffect(() => {
