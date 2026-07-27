@@ -134,7 +134,12 @@ export default function MapView(): JSX.Element {
           .order('creado_en', { ascending: false });
 
         if (error) {
-          console.error('Error fetching reports:', error);
+          console.error('Error fetching reports:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+          });
           setReports(mockReports);
         } else if (data) {
           // Mapeamos los datos de la DB a nuestro formato de Report
@@ -158,7 +163,12 @@ export default function MapView(): JSX.Element {
           .order('fecha_publicacion', { ascending: false });
 
         if (newsError) {
-          console.error('Error fetching news:', newsError);
+          console.error('Error fetching news:', {
+            message: newsError.message,
+            code: newsError.code,
+            details: newsError.details,
+            hint: newsError.hint
+          });
         } else if (newsData) {
           const validNews = newsData
             .filter(n => 
@@ -222,6 +232,67 @@ export default function MapView(): JSX.Element {
             matchDate = dateVal >= thirtyDaysAgo;
           }
         }
+      }
+
+      return matchTags && matchStatus && matchDate;
+    });
+  }, [reports, showReports, selectedTags, selectedStatuses, selectedDateRange]);
+
+  const filteredNews = useMemo(() => {
+    if (!showNews) return [];
+    return news.filter(item => {
+      let matchDate = true;
+      if (selectedDateRange !== 'todo') {
+        const dateVal = item.fecha_publicacion ? new Date(item.fecha_publicacion) : null;
+        if (!dateVal || isNaN(dateVal.getTime())) {
+          matchDate = false;
+        } else {
+          const now = new Date();
+          if (selectedDateRange === 'hoy') {
+            const startOfToday = new Date();
+            startOfToday.setHours(0, 0, 0, 0);
+            matchDate = dateVal >= startOfToday;
+          } else if (selectedDateRange === '7dias') {
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+            matchDate = dateVal >= sevenDaysAgo;
+          } else if (selectedDateRange === '30dias') {
+            const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+            matchDate = dateVal >= thirtyDaysAgo;
+          }
+        }
+      }
+      return matchDate;
+    });
+  }, [news, showNews, selectedDateRange]);
+
+  const handleAddReport = async (newReportData: Omit<Report, 'id' | 'status'>) => {
+    try {
+      // Mapeamos del formato frontend al formato de la tabla en Supabase
+      // Omitimos 'estado' para que la base de datos use automáticamente su valor por defecto ('pendiente')
+      const newReportToInsert = {
+        latitud: newReportData.lat,
+        longitud: newReportData.lng,
+        descripcion: newReportData.description || null,
+        afectaciones: newReportData.impactTags ?? [],
+        imagen_url: newReportData.imageUrl || null
+      };
+
+      console.log('[ReporteForm] Insertando en Supabase:', newReportToInsert);
+
+      const { data, error } = await supabase
+        .from('reportes')
+        .insert([newReportToInsert])
+        .select()
+        .single();
+
+      if (error) {
+        console.error('[ReporteForm] Error de Supabase:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        });
+        throw error;
       }
 
       return matchTags && matchStatus && matchDate;
