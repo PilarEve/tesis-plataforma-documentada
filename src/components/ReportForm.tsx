@@ -313,7 +313,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
           </button>
         </div>
         
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
+        <form onSubmit={handleSubmit} className="form-scrollable p-6 space-y-5 max-h-[80vh] overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
           <div className="space-y-3 border border-slate-100 rounded-2xl p-4 bg-slate-50/30">
             <div className="flex justify-between items-start select-none">
               <div>

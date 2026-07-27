@@ -34,7 +34,7 @@ export default function SidebarReports({ reports, onSelectReport, onCollapse }: 
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+      <div className="sidebar-scrollable flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50/50 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         {reports.map((report) => (
           <div 
             key={report.id} 
