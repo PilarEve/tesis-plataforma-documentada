@@ -47,17 +47,15 @@ export default function MapView() {
   const [isHeatmapVisible, setIsHeatmapVisible] = useState(false);
   const [showReportForm, setShowReportForm] = useState(false);
   const [mapRef, setMapRef] = useState<L.Map | null>(null);
-  const [isSidebarOpen, setIsSidebarOpen] = useState(() => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [activeBaseMap, setActiveBaseMap] = useState<'voyager' | 'light' | 'satellite'>('light');
 
   // Ajustar la visibilidad inicial según el ancho de la pantalla
   useEffect(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      return false;
+      setIsSidebarOpen(false);
     }
-    return true;
-  });
+  }, []);
 
   // Evitar scroll en el body y html de la página
   useEffect(() => {
@@ -136,7 +134,12 @@ export default function MapView() {
           .order('creado_en', { ascending: false });
 
         if (error) {
-          console.error('Error fetching reports:', error);
+          console.error('Error fetching reports:', {
+            message: error.message,
+            code: error.code,
+            details: error.details,
+            hint: error.hint
+          });
           setReports(mockReports);
         } else if (data) {
           // Mapeamos los datos de la DB a nuestro formato de Report
@@ -160,7 +163,12 @@ export default function MapView() {
           .order('fecha_publicacion', { ascending: false });
 
         if (newsError) {
-          console.error('Error fetching news:', newsError);
+          console.error('Error fetching news:', {
+            message: newsError.message,
+            code: newsError.code,
+            details: newsError.details,
+            hint: newsError.hint
+          });
         } else if (newsData) {
           const validNews = newsData
             .filter(n => 
@@ -266,7 +274,7 @@ export default function MapView() {
   const handleSelectReportFromSidebar = (report: Report) => {
     if (mapRef) {
       mapRef.setView([report.lat, report.lng], 16);
-      if (window.innerWidth < 768) setIsSidebarOpen(false); // Cierra sidebar en móvil
+      if (window.innerWidth < 768) setIsSidebarOpen(false);
     }
   };
 
@@ -345,17 +353,6 @@ export default function MapView() {
       </div>
 
       {/* Contenedor Principal del Mapa */}
-      <div className="flex-1 relative h-full w-full min-h-0">
-        {/* Botón flotante para abrir el sidebar (Solo visible en escritorio cuando está contraído) */}
-        {!isSidebarOpen && (
-          <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="hidden md:flex absolute top-6 left-6 z-[1000] bg-white/95 backdrop-blur-md text-slate-800 font-bold py-3.5 px-5 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] items-center gap-2.5 transition-all transform hover:scale-105 active:scale-95 border border-slate-200/50 cursor-pointer"
-            title="Mostrar reportes recientes"
-          >
-            <AlertTriangle className="text-blue-600 animate-pulse" size={18} />
-            <span className="text-sm font-semibold">Reportes Recientes</span>
-            <span className="bg-blue-50 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full border border-blue-100">
       <div className="flex-1 min-w-0 relative h-full overflow-hidden">
         {/* Botón flotante para abrir el sidebar */}
         <button

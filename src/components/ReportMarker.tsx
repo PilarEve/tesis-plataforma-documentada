@@ -4,7 +4,7 @@ import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import { Report } from '../types/report';
 import { format } from 'date-fns';
-import Image from 'next/image';
+
 
 const createCustomIcon = () => {
   const color = '#3b82f6'; // blue-500
@@ -44,12 +44,9 @@ export default function ReportMarker({ report }: ReportMarkerProps) {
           {report.imageUrl && (
             <div className="w-full h-48 sm:h-[180px] relative rounded-xl overflow-hidden shadow-lg border border-gray-100 bg-black flex items-center justify-center">
               {report.archivoTipo === 'video' ? (
-                <video
-                  src={report.imageUrl}
-                  controls
-                  preload="metadata"
-                  className="w-full h-full object-cover"
-                />
+                <div className="w-full h-full flex items-center justify-center bg-slate-800 text-slate-400 text-xs font-medium px-4 text-center">
+                  Este tipo de evidencia ya no está disponible.
+                </div>
               ) : (
                 <img 
                   src={report.imageUrl} 
