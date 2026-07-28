@@ -87,7 +87,7 @@ export default function Home() {
               </div>
               <h2 className="text-xl font-bold text-slate-900">Reportes Ciudadanos</h2>
               <p className="text-sm text-slate-600 leading-relaxed">
-                La participación activa de los vecinos nos permite mapear en tiempo real calles anegadas y daños, adjuntando evidencias de foto o video.
+                La participación activa de los vecinos nos permite mapear en tiempo real calles anegadas y daños, adjuntando evidencias fotográficas geolocalizadas.
               </p>
             </div>
           </div>

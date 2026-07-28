@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { Report } from '../types/report';
-import { MapPin, Camera, X, Loader2, AlertTriangle, ChevronDown, ChevronUp, Film, Trash2 } from 'lucide-react';
+import { MapPin, Camera, X, Loader2, AlertTriangle, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
-import Image from 'next/image';
+
 
 const AVAILABLE_TAGS = [
   'Calle inundada',
@@ -74,7 +74,6 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
   const [impactTags, setImpactTags] = useState<string[]>([]);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string>('');
-  const [fileType, setFileType] = useState<'imagen' | 'video' | null>(null);
   const [isLocating, setIsLocating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAfectacionesOpen, setIsAfectacionesOpen] = useState(false);
@@ -110,73 +109,35 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
     }
   };
 
-  const validateFile = async (file: File): Promise<{ valid: boolean; error?: string }> => {
+  const validateFile = (file: File): { valid: boolean; error?: string } => {
     const acceptedMimes = [
       "image/jpeg",
       "image/png",
       "image/webp",
-      "video/mp4",
-      "video/quicktime",
-      "video/webm"
     ];
     if (!acceptedMimes.includes(file.type)) {
       return {
         valid: false,
-        error: "Tipo de archivo no permitido. Solo se aceptan imágenes (JPG, JPEG, PNG, WebP) y videos (MP4, MOV, WebM)."
+        error: "Tipo de archivo no permitido. Solo se aceptan imágenes (JPG, JPEG, PNG, WebP)."
       };
     }
 
-    const isVideo = file.type.startsWith("video/");
-    const maxSize = isVideo ? 20 * 1024 * 1024 : 5 * 1024 * 1024;
+    const maxSize = 5 * 1024 * 1024;
     if (file.size > maxSize) {
       return {
         valid: false,
-        error: `El archivo supera el tamaño máximo permitido (${isVideo ? '20' : '5'} MB).`
+        error: "La imagen supera el tamaño máximo permitido (5 MB)."
       };
-    }
-
-    if (isVideo) {
-      try {
-        const durationValid = await new Promise<boolean>((resolve) => {
-          const video = document.createElement("video");
-          video.preload = "metadata";
-          video.onloadedmetadata = () => {
-            window.URL.revokeObjectURL(video.src);
-            if (video.duration && isFinite(video.duration)) {
-              resolve(video.duration <= 10);
-            } else {
-              resolve(false);
-            }
-          };
-          video.onerror = () => {
-            window.URL.revokeObjectURL(video.src);
-            resolve(false);
-          };
-          video.src = URL.createObjectURL(file);
-        });
-
-        if (!durationValid) {
-          return {
-            valid: false,
-            error: "El video supera la duración máxima permitida de 10 segundos."
-          };
-        }
-      } catch (e) {
-        return {
-          valid: false,
-          error: "No se pudo validar la duración del video."
-        };
-      }
     }
 
     return { valid: true };
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      
-      const validation = await validateFile(file);
+
+      const validation = validateFile(file);
       if (!validation.valid) {
         alert(validation.error);
         e.target.value = '';
@@ -189,7 +150,6 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
 
       setImageFile(file);
       setFilePreviewUrl(URL.createObjectURL(file));
-      setFileType(file.type.startsWith("video/") ? "video" : "imagen");
     }
   };
 
@@ -199,7 +159,6 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
     }
     setImageFile(null);
     setFilePreviewUrl('');
-    setFileType(null);
 
     const input1 = document.getElementById('file-upload') as HTMLInputElement;
     if (input1) input1.value = '';
@@ -218,17 +177,15 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
 
     setIsSubmitting(true);
     let finalImageUrl = null;
-    let archivoTipo = null;
+    let archivoTipo: 'imagen' | null = null;
 
     try {
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop() || '';
-        const isVideo = fileType === 'video';
-        archivoTipo = isVideo ? 'video' : 'imagen';
-        
-        const folder = isVideo ? 'videos' : 'imagenes';
+        archivoTipo = 'imagen';
+
         const fileName = `${crypto.randomUUID()}.${fileExt}`;
-        const filePath = `${folder}/${fileName}`;
+        const filePath = `imagenes/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('reportes')
@@ -238,7 +195,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
           });
 
         if (uploadError) {
-          throw new Error(`Error al subir el archivo: ${uploadError.message}`);
+          throw new Error(`Error al subir la imagen: ${uploadError.message}`);
         }
 
         const { data: { publicUrl } } = supabase.storage
@@ -286,7 +243,6 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
       setImpactTags([]);
       setImageFile(null);
       setFilePreviewUrl('');
-      setFileType(null);
 
       onSubmit(mappedNewReport);
     } catch (error: unknown) {
@@ -450,7 +406,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
           </div>
 
           <div className="space-y-3">
-            <label className="text-sm font-bold text-slate-600">Evidencia (Imagen o Video)</label>
+            <label className="text-sm font-bold text-slate-600">Evidencia fotográfica</label>
             
             {!filePreviewUrl ? (
               <div className="relative border-2 border-dashed border-slate-300 rounded-2xl overflow-hidden bg-slate-50 hover:bg-blue-50 hover:border-blue-300 transition-colors cursor-pointer group min-h-[150px] flex flex-col items-center justify-center">
@@ -465,30 +421,19 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
                   type="file" 
                   id="file-upload"
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" 
-                  accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+                  accept="image/jpeg,image/png,image/webp"
                   onChange={handleFileChange}
                 />
               </div>
             ) : (
               <div className="border border-slate-200 rounded-2xl overflow-hidden bg-slate-50 p-4 space-y-4">
-                {fileType === 'imagen' ? (
-                  <div className="w-full h-48 relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex items-center justify-center">
-                    <img 
-                      src={filePreviewUrl} 
-                      alt="Vista previa del archivo" 
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-48 rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex items-center justify-center">
-                    <video 
-                      src={filePreviewUrl} 
-                      controls 
-                      preload="metadata" 
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                )}
+                <div className="w-full h-48 relative rounded-xl overflow-hidden bg-slate-900 border border-slate-200 flex items-center justify-center">
+                  <img 
+                    src={filePreviewUrl} 
+                    alt="Vista previa de la imagen" 
+                    className="max-h-full max-w-full object-contain"
+                  />
+                </div>
                 
                 <div className="bg-white p-4 rounded-xl border border-slate-100 space-y-2 text-xs text-slate-600 shadow-sm">
                   <div className="flex justify-between items-center gap-4">
@@ -502,15 +447,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
                   <div className="flex justify-between items-center">
                     <span className="font-bold text-slate-500 uppercase tracking-wide text-[10px]">Tipo</span>
                     <span className="text-slate-800 font-semibold capitalize flex items-center gap-1">
-                      {fileType === 'video' ? (
-                        <>
-                          <Film size={14} className="text-blue-500" /> Video ({imageFile?.type.split('/').pop()})
-                        </>
-                      ) : (
-                        <>
-                          <Camera size={14} className="text-blue-500" /> Imagen ({imageFile?.type.split('/').pop()})
-                        </>
-                      )}
+                      <Camera size={14} className="text-blue-500" /> Imagen ({imageFile?.type.split('/').pop()})
                     </span>
                   </div>
                 </div>
@@ -533,7 +470,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
                     type="file" 
                     id="file-upload-replace"
                     className="hidden" 
-                    accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime,video/webm"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleFileChange}
                   />
                 </div>
@@ -542,7 +479,7 @@ export default function ReportForm({ onClose, onSubmit }: ReportFormProps) {
             {imageFile && (
               <p className="text-xs text-green-600 mt-2 font-bold flex items-center gap-1.5 select-none">
                 <span className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span> 
-                {fileType === 'video' ? 'Video' : 'Imagen'} adjuntado correctamente.
+                Imagen adjuntada correctamente.
               </p>
             )}
           </div>
