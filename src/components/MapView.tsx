@@ -35,7 +35,7 @@ const BASE_MAPS = {
   }
 };
 
-export default function MapView(): JSX.Element {
+export default function MapView() {
   const [reports, setReports] = useState<Report[]>([]); // Inicializamos vacío
   const [news, setNews] = useState<NoticiaHistorica[]>([]);
   const [loading, setLoading] = useState(true);
