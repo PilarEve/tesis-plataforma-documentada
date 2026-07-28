@@ -258,6 +258,21 @@ export default function MapView(): JSX.Element {
           } else if (selectedDateRange === '30dias') {
             const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
             matchDate = dateVal >= thirtyDaysAgo;
+          }
+        }
+      }
+      return matchDate;
+    });
+  }, [news, showNews, selectedDateRange]);
+
+  const handleAddReport = (newReport: Report) => {
+    setReports(prev => [newReport, ...prev]);
+    setShowReportForm(false);
+    if (mapRef) mapRef.setView([newReport.lat, newReport.lng], 15);
+  };
+
+  const handleSelectReportFromSidebar = (report: Report) => {
+    if (mapRef) {
       mapRef.setView([report.lat, report.lng], 16);
       if (window.innerWidth < 768) setIsSidebarOpen(false);
     }
@@ -267,10 +282,24 @@ export default function MapView(): JSX.Element {
     if (mapRef) {
       mapRef.flyTo([lat, lon], 16, {
         animate: true,
+        duration: 1.5
       });
     }
   };
 
+  const handleZoomIn = () => {
+    if (mapRef) {
+      mapRef.zoomIn();
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (mapRef) {
+      mapRef.zoomOut();
+    }
+  };
+
+  return (
     <div className="flex w-full h-full min-h-0 bg-slate-50 overflow-hidden relative font-sans text-slate-800">
       
       {/* Botones Flotantes Inferiores Derechos */}
