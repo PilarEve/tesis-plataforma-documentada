@@ -212,7 +212,7 @@ En [`src/components/MapView.tsx`](file:///c:/Users/Usuario/Documents/Tesis%20-%2
 | Clave interna | Nombre en UI | Proveedor / URL del TileLayer | Finalidad |
 | :--- | :--- | :--- | :--- |
 | `light` *(Por defecto)* | Claro | `https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png` (CARTO) | Fondo claro de alto contraste que resalta marcadores de colores. |
-| `voyager` | Color | `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png` (CARTO) | Mapa topográfico urbano completo con relieve e infraestructura. |
+| `voyager` | Color | `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png` (CARTO) | Mapa topográfico urbano completo con relief e infraestructura. |
 | `satellite` | Satélite | `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}` (Esri World Imagery) | Fotografía satelital real para analizar cauces de arroyos y vegetación. |
 
 ---
@@ -665,5 +665,5 @@ Al cargar la página, `MapView.tsx` realiza una consulta `SELECT` con el SDK de 
              ▼
  ┌────────────────────────┐
  │      LEAFLET JS        │  (Renderizado final de mosaicos, marcadores y popups)
- └────────────────────────┘
+ └───────────┬────────────┘
 ```
